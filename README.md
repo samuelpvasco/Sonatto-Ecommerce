@@ -8,6 +8,7 @@
     <img src="https://img.shields.io/badge/SQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
     <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white">
     <img src="https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white">
+    <img src="https://img.shields.io/badge/JavaScript-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black">
   </h2> 
   <h2>Para ver informações detalhadas do sistema acesse a nossa wiki: <a href="https://github.com/arthursreimberg/Sonatto-Ecommerce/wiki">Wiki Sonatto</a>.</h2>
   <h2>Caso queira saber mais sobre nós da Nexore©, acesse nosso site: <a href="https://nexore.me/">Nexore</a></h2>
