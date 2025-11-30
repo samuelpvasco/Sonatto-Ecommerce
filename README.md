@@ -3,7 +3,7 @@
   <h1>Bem vindo(a) ao e-commerce Sonatto©.</h1>
   <h2>Aqui você vai se informar sobre o nosso projeto.</h2>
   <h2>
-    O Sonatto© é um e-commerce de instrumentos musicais desenvolvido pela emprea Nexore© nas linguagens: 
+    O Sonatto© é um e-commerce de instrumentos musicais desenvolvido pela empresa Nexore© nas linguagens: 
     <img src="https://img.shields.io/badge/C%23-239120?style=for-the-badge&logo=c-sharp&logoColor=white">
     <img src="https://img.shields.io/badge/SQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white">
     <img src="https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white">
