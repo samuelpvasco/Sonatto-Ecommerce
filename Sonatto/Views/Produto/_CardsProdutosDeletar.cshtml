@@ -5,19 +5,25 @@
     foreach (var produto in Model)
     {
         var imageUrl = produto.UrlImagens != null && produto.UrlImagens.Any()
-            ? produto.UrlImagens.First()
+            ? produto.UrlImagens[0]
             : Url.Content("~/imgs/Produto/Bateria1.jpg");
 
-        <a href="#" class="exibicaoCard confirm-delete"
-           data-id="@produto.IdProduto"
-           data-name="@produto.NomeProduto"
-           data-image="@imageUrl"
-           style="text-decoration: none; color: inherit;"
-           data-avaliacao="@produto.Avaliacao.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)">
+        <button type="button"
+                class="exibicaoCard confirm-delete"
+                style="text-decoration: none; color: inherit; background: none; border: none; padding: 0; cursor: pointer;"
+                data-id="@produto.IdProduto"
+                data-name="@produto.NomeProduto"
+                data-image="@imageUrl"
+                data-avaliacao="@produto.Avaliacao.ToString("F1", System.Globalization.CultureInfo.InvariantCulture)">
+
             <img src="@imageUrl" class="exibicaoCardimg" />
+
             <p class="cardNome">
-                @(produto.NomeProduto?.Length > 25 ? produto.NomeProduto.Substring(0, 25) + "..." : produto.NomeProduto)
-            </p>
+                @(produto.NomeProduto.Length > 25
+                        ? produto.NomeProduto.Substring(0, 25) + "..."
+                        : produto.NomeProduto)
+    </p>
+
             <div class="cardNotas">
                 <div class="rating-container">
                     <span class="star"></span>
@@ -27,11 +33,14 @@
                     <span class="star"></span>
                     <p class="cardNotasNota"><span>@produto.Avaliacao</span>/5</p>
                 </div>
+
                 <div class="cardPreco">
                     <strong>R$ @produto.Preco</strong>
                 </div>
             </div>
-        </a>
+
+        </button>
+
     }
 }
 else

@@ -202,9 +202,6 @@ namespace Sonatto.Controllers
         }
 
 
-
-
-        // GET: Editar — agora retorna ComboDeView para que a view de edição mostre o catálogo lateral
         [HttpGet]
         public async Task<IActionResult> Editar(int? id)
         {
@@ -283,18 +280,43 @@ namespace Sonatto.Controllers
             int? idUsu = HttpContext.Session.GetInt32("UserId");
             if (idUsu == null)
                 return RedirectToAction("Index", "Login");
+            // Carrega o estado atual do produto para permitir atualização parcial
+            var existente = await _produtoAplicacao.GetPorIdAsync(produto.IdProduto);
+            if (existente == null)
+                return NotFound();
 
+            // Se algum campo obrigatório vier vazio / inválido, mantemos o valor antigo
+            // Strings: se nulas ou em branco => manter
+            if (string.IsNullOrWhiteSpace(produto.NomeProduto)) produto.NomeProduto = existente.NomeProduto;
+            if (string.IsNullOrWhiteSpace(produto.Descricao)) produto.Descricao = existente.Descricao;
+            if (string.IsNullOrWhiteSpace(produto.Marca)) produto.Marca = existente.Marca;
+            if (string.IsNullOrWhiteSpace(produto.Categoria)) produto.Categoria = existente.Categoria;
+
+            // Númericos: se inválido (ModelState com erro) ou valor não positivo, manter
+            if (ModelState.ContainsKey(nameof(produto.Preco)) && ModelState[nameof(produto.Preco)].Errors.Count > 0 || produto.Preco <= 0)
+                produto.Preco = existente.Preco;
+            if (ModelState.ContainsKey(nameof(produto.Avaliacao)) && ModelState[nameof(produto.Avaliacao)].Errors.Count > 0 || produto.Avaliacao <= 0)
+                produto.Avaliacao = existente.Avaliacao;
+            if (ModelState.ContainsKey(nameof(produto.Quantidade)) && ModelState[nameof(produto.Quantidade)].Errors.Count > 0 || produto.Quantidade < 0)
+                produto.Quantidade = existente.Quantidade;
+
+            // Disponibilidade: se não veio no post (padrão bool false e sem alteração deliberada) mantemos valor anterior
+            // Como bool não tem estado "null", podemos checar se o formulário tem a chave
+            if (!Request.Form.Keys.Contains(nameof(produto.Disponibilidade)))
+                produto.Disponibilidade = existente.Disponibilidade;
+
+            // Limpa erros para não bloquear a atualização parcial
             if (!ModelState.IsValid)
             {
-                // retorna para a view de edição exibindo validações
-                return View(produto);
+                foreach (var kv in ModelState.Where(m => m.Value!.Errors.Count > 0))
+                {
+                    kv.Value.Errors.Clear();
+                }
             }
 
             try
             {
-                // Apenas atualiza os dados básicos do produto (nome, marca, preço, etc.)
                 await _produtoAplicacao.Alterar_e_DeletarProduto(produto, "alterar", idUsu.Value);
-
                 TempData["Sucesso"] = "Produto alterado com sucesso!";
                 return RedirectToAction("Produto", new { id = produto.IdProduto });
             }
@@ -332,11 +354,7 @@ namespace Sonatto.Controllers
             if (produto == null)
                 return NotFound();
 
-            // Use the existing app method to perform delete (action string "DELETAR")
             await _produtoAplicacao.Alterar_e_DeletarProduto(produto, "deletar", idUsu.Value);
-
-            TempData["Sucesso"] = "Produto deletado com sucesso.";
-            // Redirect back to the selection catalog
             return RedirectToAction(nameof(Catalogo));
         }
 
@@ -394,40 +412,30 @@ namespace Sonatto.Controllers
             return PhysicalFile(filePath, contentType);
         }
 
-        public async Task<IActionResult> CatalogoDeletar(string search, string categoria, int pagina = 1, decimal? minPreco = null, decimal? maxPreco = null)
+        public async Task<IActionResult> CatalogoDeletar(
+            string search, string categoria, int pagina = 1,
+            decimal? minPreco = null, decimal? maxPreco = null)
         {
             int produtosPorPagina = 12;
             var todosProdutos = await _produtoAplicacao.GetTodosAsync();
 
             if (!string.IsNullOrWhiteSpace(search))
-            {
                 todosProdutos = todosProdutos
                     .Where(p => p.NomeProduto != null &&
                                 p.NomeProduto.StartsWith(search, StringComparison.OrdinalIgnoreCase))
                     .ToList();
-            }
 
             if (!string.IsNullOrWhiteSpace(categoria))
-            {
                 todosProdutos = todosProdutos
                     .Where(p => p.Categoria != null &&
                                 p.Categoria.Equals(categoria, StringComparison.OrdinalIgnoreCase))
                     .ToList();
-            }
 
             if (minPreco.HasValue)
-            {
-                todosProdutos = todosProdutos
-                    .Where(p => p.Preco >= minPreco.Value)
-                    .ToList();
-            }
+                todosProdutos = todosProdutos.Where(p => p.Preco >= minPreco.Value).ToList();
 
             if (maxPreco.HasValue)
-            {
-                todosProdutos = todosProdutos
-                    .Where(p => p.Preco <= maxPreco.Value)
-                    .ToList();
-            }
+                todosProdutos = todosProdutos.Where(p => p.Preco <= maxPreco.Value).ToList();
 
             var produtos = todosProdutos
                 .Skip((pagina - 1) * produtosPorPagina)
@@ -436,12 +444,14 @@ namespace Sonatto.Controllers
 
             ViewBag.PaginaAtual = pagina;
             ViewBag.TotalPaginas = (int)Math.Ceiling((double)todosProdutos.Count() / produtosPorPagina);
-            ViewBag.Search = search;
-            ViewBag.Categoria = categoria;
-            ViewBag.MinPreco = minPreco;
-            ViewBag.MaxPreco = maxPreco;
 
+            // ✔ se for AJAX → devolve APENAS a partial de deletar
+            if (Request.Headers["X-Requested-With"] == "XMLHttpRequest")
+                return PartialView("_CardsProdutosDelete", produtos);
+
+            // ✔ se for carregamento normal → view completa
             return View("CatalogoDeletar", produtos);
         }
+
     }
 }

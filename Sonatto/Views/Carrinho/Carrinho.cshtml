@@ -12,6 +12,7 @@
 
     <link rel="stylesheet" href="~/css/Index.css" />
     <link rel="stylesheet" href="~/css/Carrinho.css" />
+    <link rel="shortcut icon" href="~/imgs/Logos/Monografia.png" />
     <link href="https://fonts.googleapis.com/css2?family=Bruno+Ace&display=swap" rel="stylesheet">
 </head>
 
@@ -92,29 +93,31 @@
 
         @* Mensagem de finalizar compra *@
         <div></div>
-        @* Modal de finalização (MANTIDO inalterado visualmente) *@
+        @* Modal de finalização *@
         <div id="modal-finalizar" class="modal">
             <div class="modal-card">
-                <h3 style="color:#222; font-size:25px; font-family:'Bruno Ace'; font-weight:700">Finalizar Compra</h3>
-                <p style="font-size:18px;">Revise as informações e escolha a forma de pagamento.</p>
+                <div class="conteudo-modal">
+                    <h3 style="color:#222; font-size:25px; font-family:'Bruno Ace'; font-weight:700">Finalizar Compra</h3>
+                    <p style="font-size:18px;">Revise as informações e escolha a forma de pagamento.</p>
 
-                <div class="modal-linhas">
-                    <label>Forma de pagamento</label>
-                    <select id="tipo-pagamento" class="input-venda">
-                        <option value="PIX">Pix</option>
-                        <option value="CREDITO">Crédito</option>
-                        <option value="DEBITO">Débito</option>
-                    </select>
-                </div>
+                    <div class="modal-linhas">
+                        <label style="font-family:Source Code Pro">Forma de pagamento</label>
+                        <select id="tipo-pagamento" class="input-venda">
+                            <option value="PIX">Pix</option>
+                            <option value="CREDITO">Crédito</option>
+                            <option value="DEBITO">Débito</option>
+                        </select>
+                    </div>
 
-                <div class="modal-linhas2">
-                    <label>Observações (opcional)</label>
-                    <textarea id="observacoes" class="input-venda" rows="3" placeholder="Instruções para entrega, trocas..."></textarea>
-                </div>
+                    <div class="modal-linhas2">
+                        <label style="font-family:Source Code Pro">Observações (opcional)</label>
+                        <textarea id="observacoes" class="input-venda" rows="3" placeholder="Instruções para entrega, trocas..."></textarea>
+                    </div>
 
-                <div class="modal-botoes">
-                    <button id="modal-cancel" class="btn-cancel">Cancelar</button>
-                    <button id="modal-submit" class="btn-confirm">Confirmar Compra</button>
+                    <div class="modal-botoes">
+                        <button id="modal-cancel" class="btn-cancel">Cancelar</button>
+                        <button id="modal-submit" class="btn-confirm">Confirmar</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -153,9 +156,9 @@
 
                 <div style="display:flex; align-items:center;">
                     <div class="brands" aria-hidden="true">
-                        <img id="brand-visa" src="/imgs/Icones/visa.png" alt="Visa" />
-                        <img id="brand-elo" src="/imgs/Icones/elo.png" alt="Elo" />
-                        <img id="brand-master" src="/imgs/Icones/mastercard.png" alt="Mastercard" />
+                        <img id="brand-visa" src="~/imgs/Icones/visa.png" alt="Visa" />
+                        <img id="brand-elo" src="~/imgs/Icones/elo.png" alt="Elo" />
+                        <img id="brand-master" src="~/imgs/Icones/mastercard.png" alt="Mastercard" />
                     </div>
                 </div>
             </div>
@@ -203,8 +206,6 @@
             </div>
         </div>
     </div>
-
-    @* Toast simples para confirmar compra no canto inferior direito *
     <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
     @* Script para buscar carrinho e itens e abrir modal *@
@@ -239,7 +240,8 @@
             const brandElo = document.getElementById('brand-elo');
             const brandMaster = document.getElementById('brand-master');
 
-            const toast = document.getElementById('toast');
+            // usar let para permitir recriação dinâmica se elemento não existir no momento da captura
+            let toast = document.getElementById('toast');
 
             // PIX modal elements
             const modalPix = document.getElementById('modal-pix');
@@ -711,21 +713,29 @@
             });
 
             
-            function showToast(message, timeout = 4000, type = 'default') {
-                toast.textContent = message;
-                
-                if (type === 'success') {
-                    toast.style.background = '#0a7f6f';
-                } else if (type === 'error') {
-                    toast.style.background = '#b00020';
-                } else {
-                    toast.style.background = '#222';
+            function ensureToast(){
+                if(!toast){
+                    toast = document.getElementById('toast');
                 }
-                toast.classList.add('show');
-                clearTimeout(toast._t);
-                toast._t = setTimeout(() => {
-                    toast.classList.remove('show');
-                }, timeout);
+                if(!toast){
+                    toast = document.createElement('div');
+                    toast.id = 'toast';
+                    toast.className = 'toast';
+                    toast.setAttribute('role','status');
+                    toast.setAttribute('aria-live','polite');
+                    toast.setAttribute('aria-atomic','true');
+                    document.body.appendChild(toast);
+                }
+                return toast;
+            }
+
+            function showToast(message, timeout = 4000, type = 'default') {
+                const t = ensureToast();
+                t.textContent = message;
+                t.style.background = type === 'success' ? '#0a7f6f' : (type === 'error' ? '#b00020' : '#222');
+                t.classList.add('show');
+                clearTimeout(t._t);
+                t._t = setTimeout(() => t.classList.remove('show'), timeout);
             }
 
             

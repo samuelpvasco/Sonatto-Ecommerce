@@ -12,7 +12,7 @@ namespace Sonatto.Models
         public required string NomeProduto { get; set; }
 
         [Required(ErrorMessage = "A descrição é obrigatória.")]
-        [StringLength(500)]
+        [StringLength(2500)]
         public required string Descricao { get; set; }
 
         [Required(ErrorMessage = "O preço é obrigatório.")]

@@ -24,69 +24,35 @@
             const formulario = campoBusca ? campoBusca.closest('form') : null;
             if (!campoBusca || !formulario) return;
 
-            let temporizador = null;
             let compondo = false;
             let ultimoValor = (campoBusca.value || '').trim();
-            let ultimoEnviado = ultimoValor;
 
-            
+            // ----- IME / digitações especiais -----
             campoBusca.addEventListener('compositionstart', () => compondo = true);
             campoBusca.addEventListener('compositionend', () => {
                 compondo = false;
-                
-                handleInput();
             });
 
-            campoBusca.addEventListener('input', handleInput);
-
-            function handleInput() {
+            campoBusca.addEventListener('input', () => {
                 if (compondo) return;
-                const valor = (campoBusca.value || '').trim();
-                if (valor === ultimoValor) return;
-                ultimoValor = valor;
-            }
-
-            function enviarFormularioSeNecessario() {
-                // evita envios repetidos com mesmo valor
-                if (ultimoValor === ultimoEnviado) return;
-                enviarFormulario();
-            }
-
-            function enviarFormulario() {
-                clearTimeout(temporizador);
-                // marca último enviado antes de enviar
-                ultimoEnviado = ultimoValor;
-                if (typeof formulario.requestSubmit === 'function') {
-                    formulario.requestSubmit();
-                } else {
-                    formulario.submit();
-                }
-            }
-
-            // ao clicar fora do campo vai enviar a pesquisa
-            document.addEventListener('click', function (ev) {
-                // se clicou dentro do input ou dentro do form, não envia
-                if (ev.target.closest && (ev.target.closest('form') === formulario)) return;
-                if (compondo) return;
-                // só enviar se houve mudança desde o último envio
-                if (ultimoValor !== ultimoEnviado) {
-                    enviarFormulario();
-                }
+                ultimoValor = (campoBusca.value || '').trim();
             });
 
-            // Ao enviar atualiza últimoEnviado para evitar reenvio
+            // ----- Removido o envio por clique externo -----
+
+            // ENTER ainda funciona normalmente
             formulario.addEventListener('submit', function () {
-                ultimoEnviado = ultimoValor;
-                clearTimeout(temporizador);
+                ultimoValor = (campoBusca.value || '').trim();
             });
 
-            // opcional: ao carregar a página, atualiza estados locais
+            // Atualiza estado quando carrega
             window.addEventListener('load', function () {
                 ultimoValor = (campoBusca.value || '').trim();
-                ultimoEnviado = ultimoValor;
             });
         });
     </script>
+
+
 
 
     <div class="menuUsr">
