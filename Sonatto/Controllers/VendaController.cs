@@ -7,11 +7,15 @@ namespace Sonatto.Controllers
     {
         private readonly IVendaAplicacao _vendaAplicacao;
         private readonly ICarrinhoAplicacao _carrinhoAplicacao;
+        private readonly IItemCarrinhoAplicacao _itemCarrinhoAplicacao;
+        private readonly IProdutoAplicacao _produtoAplicacao;
 
-        public VendaController(IVendaAplicacao vendaAplicacao, ICarrinhoAplicacao carrinhoAplicacao)
+        public VendaController(IVendaAplicacao vendaAplicacao, ICarrinhoAplicacao carrinhoAplicacao, IItemCarrinhoAplicacao itemCarrinhoAplicacao, IProdutoAplicacao produtoAplicacao)
         {
             _vendaAplicacao = vendaAplicacao;
             _carrinhoAplicacao = carrinhoAplicacao;
+            _itemCarrinhoAplicacao = itemCarrinhoAplicacao;
+            _produtoAplicacao = produtoAplicacao;
         }
 
         // GET: /Venda/Buscar?idUsuario=5
@@ -41,6 +45,30 @@ namespace Sonatto.Controllers
             {
                 if (idUsuario <= 0 || idCarrinho <= 0)
                     return Json(new { sucesso = false, mensagem = "Dados inválidos para gerar venda." });
+
+                // Verificar disponibilidade de estoque para cada item do carrinho antes de gerar a venda
+                try
+                {
+                    var itens = (await _itemCarrinhoAplicacao.BuscarItensCarrinho(idCarrinho)).ToList();
+                    foreach (var it in itens)
+                    {
+                        var produto = await _produtoAplicacao.GetPorIdAsync(it.IdProduto);
+                        if (produto == null)
+                        {
+                            return Json(new { sucesso = false, mensagem = $"Produto (id {it.IdProduto}) não encontrado." });
+                        }
+
+                        // se quantidade solicitada for maior que a disponível, bloquear a venda
+                        if (it.QtdItemCar > produto.Quantidade)
+                        {
+                            return Json(new { sucesso = false, mensagem = $"Quantidade insuficiente para '{produto.NomeProduto}'. Disponível: {produto.Quantidade}, solicitado: {it.QtdItemCar}." });
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return Json(new { sucesso = false, mensagem = $"Erro ao verificar estoque: {ex.Message}" });
+                }
 
                 await _vendaAplicacao.GerarVenda(idUsuario, tipoPag, idCarrinho);
 

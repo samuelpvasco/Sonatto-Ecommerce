@@ -150,6 +150,32 @@
                 });
             }
 
+            // Converte cards para modo edição (impede navegação e abre modal)
+            function transformCardsForEdit() {
+                const cards = document.querySelectorAll('#listaProdutos .exibicaoCard');
+                cards.forEach(card => {
+                    if (card.classList.contains('confirm-edit-ready')) return;
+                    let id = card.getAttribute('data-id');
+                    if (!id) {
+                        const href = card.getAttribute('href') || '';
+                        const match = href.match(/Editar\/(\d+)/i) || href.match(/id=(\d+)/i);
+                        if (match) id = match[1];
+                        if (id) card.setAttribute('data-id', id);
+                    }
+                    if (!card.getAttribute('data-name')) {
+                        const nEl = card.querySelector('.cardNome') || card.querySelector('h3') || card.querySelector('p');
+                        if (nEl) card.setAttribute('data-name', nEl.textContent.trim());
+                    }
+                    if (!card.getAttribute('data-image')) {
+                        const imgEl = card.querySelector('img');
+                        if (imgEl) card.setAttribute('data-image', imgEl.getAttribute('src'));
+                    }
+                    card.classList.add('confirm-edit-ready');
+                    card.setAttribute('href', '#');
+                    card.style.cursor = 'pointer';
+                });
+            }
+
             async function fetchAndReplace(search = "", page = 1, categoria = "", min = "", max = "") {
                 if (!lista) return;
 
@@ -181,10 +207,10 @@
                     }
 
                     aplicarEstrelas();
+                    transformCardsForEdit();
 
                     const query = new URLSearchParams(window.location.search);
                     query.set('search', search || "");
-                    // use 'pagina' consistently with server-side links
                     query.set('pagina', page);
                     if (categoria) query.set('categoria', categoria); else query.delete('categoria');
                     if (min) query.set('minPreco', min); else query.delete('minPreco');
@@ -225,7 +251,6 @@
             categoriaBtns.forEach(btn => {
                 btn.addEventListener('click', function (e) {
                     e.preventDefault();
-                    // parse category from href to support server-generated links
                     let cat = "";
                     try {
                         const url = new URL(btn.href, window.location.origin);
@@ -262,7 +287,6 @@
             document.addEventListener('DOMContentLoaded', function () {
                 const params = new URLSearchParams(window.location.search);
                 const searchParam = params.get('search') || (input?.value || "");
-                // server uses 'pagina'
                 const pageParam = parseInt(params.get('pagina')) || 1;
                 const categoriaParam = params.get('categoria') || "";
                 const minParam = params.get('minPreco') || "";
@@ -272,63 +296,54 @@
                 if (inputMax && maxParam) inputMax.value = maxParam;
 
                 aplicarEstrelas();
+                transformCardsForEdit();
             });
 
         })();
     </script>
     <script>
-        (function () {
-            const modalOverlay = document.getElementById('confirmModal');
-            const confirmImage = document.getElementById('confirmImage');
-            const confirmName = document.getElementById('confirmName');
-            const btnCancel = document.getElementById('modalCancel');
-            const btnEdit = document.getElementById('modalEdit');
+    (function(){
+        const modalOverlay = document.getElementById('confirmModal');
+        const confirmImage = document.getElementById('confirmImage');
+        const confirmName = document.getElementById('confirmName');
+        const btnCancel = document.getElementById('modalCancel');
+        const btnEdit = document.getElementById('modalEdit');
+        let currentId = null;
 
-            let targetHref = null;
+        function openModal(id, name, image){
+            currentId = id;
+            confirmName.textContent = name || '';
+            confirmImage.src = image || '';
+            modalOverlay.classList.add('open');
+            modalOverlay.setAttribute('aria-hidden','false');
+        }
+        function closeModal(){
+            modalOverlay.classList.remove('open');
+            modalOverlay.setAttribute('aria-hidden','true');
+        }
 
-            function openModal(href, name, image) {
-                targetHref = href;
-                confirmName.textContent = name || '';
-                confirmImage.src = image || '';
-                modalOverlay.classList.add('open');
-                modalOverlay.setAttribute('aria-hidden', 'false');
-                btnEdit.focus();
+        document.addEventListener('click', function(e){
+            const card = e.target.closest('.confirm-edit-ready');
+            if(card){
+                e.preventDefault();
+                const id = card.getAttribute('data-id');
+                const name = card.getAttribute('data-name');
+                const image = card.getAttribute('data-image');
+                openModal(id, name, image);
+                return;
             }
-
-            function closeModal() {
-                targetHref = null;
-                modalOverlay.classList.remove('open');
-                modalOverlay.setAttribute('aria-hidden', 'true');
-            }
-
-            document.querySelectorAll('.confirm-edit').forEach(a => {
-                a.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const href = a.getAttribute('href');
-                    const name = a.getAttribute('data-name') || '';
-                    const image = a.getAttribute('data-image') || '';
-                    openModal(href, name, image);
-                });
-            });
-
-            btnCancel.addEventListener('click', closeModal);
-
-            btnEdit.addEventListener('click', function () {
-                if (targetHref) {
-                    window.location.href = targetHref;
-                }
-            });
-
-            modalOverlay.addEventListener('click', function (e) {
-                if (e.target === modalOverlay) closeModal();
-            });
-
-            document.addEventListener('keydown', function (e) {
-                if (e.key === 'Escape' && modalOverlay.classList.contains('open')) {
-                    closeModal();
-                }
-            });
-        })();
+            if(e.target === modalOverlay) closeModal();
+        });
+        btnCancel.addEventListener('click', closeModal);
+        btnEdit.addEventListener('click', function(){
+            if(!currentId) return;
+               window.location.href = '/Produto/Editar?id=' + encodeURIComponent(currentId);
+        });
+        document.addEventListener('keydown', function(e){
+            if(e.key === 'Escape' && modalOverlay.classList.contains('open')) closeModal();
+        });
+    })();
     </script>
+
 </body>
 </html>

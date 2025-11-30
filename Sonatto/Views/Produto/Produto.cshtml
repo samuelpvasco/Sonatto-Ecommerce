@@ -42,8 +42,8 @@
     </style>
 </head>
 <body>
-
     @Html.Partial("_Header")
+
     <div class="conteudo-page">
 
     <div class="main">
@@ -170,8 +170,9 @@
         });
 
         let qty = 1;
+        const maxStock = @Model.Produto.Quantidade; // limite vindo do backend
         function changeQty(delta) {
-            qty = Math.max(1, qty + delta);
+            qty = Math.max(1, Math.min(maxStock, qty + delta));
             document.getElementById('qty-value').textContent = qty;
         }
 
@@ -198,7 +199,11 @@
             const userId = @((Context.Session.GetInt32("UserId") ?? 0));
 
             addBtn.addEventListener('click', function () {
-                const qtd = parseInt(qtyEl.textContent || '1');
+                let qtd = parseInt(qtyEl.textContent || '1');
+                if (qtd > maxStock) {
+                    qtd = maxStock;
+                }
+                if (qtd < 1) qtd = 1;
 
                 if (!userId || userId === 0) {
                     // redireciona para login se não estiver autenticado

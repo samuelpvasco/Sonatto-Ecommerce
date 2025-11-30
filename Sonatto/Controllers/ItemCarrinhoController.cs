@@ -6,10 +6,12 @@ namespace Sonatto.Controllers
     public class ItemCarrinhoController : Controller
     {
         private readonly IItemCarrinhoAplicacao _itemCarrinhoAplicacao;
+        private readonly IProdutoAplicacao _produtoAplicacao;
 
-        public ItemCarrinhoController(IItemCarrinhoAplicacao itemCarrinhoAplicacao)
+        public ItemCarrinhoController(IItemCarrinhoAplicacao itemCarrinhoAplicacao, IProdutoAplicacao produtoAplicacao)
         {
             _itemCarrinhoAplicacao = itemCarrinhoAplicacao;
+            _produtoAplicacao = produtoAplicacao;
         }
 
 
@@ -31,6 +33,21 @@ namespace Sonatto.Controllers
                         sucesso = false,
                         mensagem = "Usuário não autenticado. Faça login para adicionar ao carrinho."
                     });
+                }
+
+                // valida estoque do produto
+                var produto = await _produtoAplicacao.GetPorIdAsync(idProduto);
+                if (produto == null)
+                {
+                    return Json(new { sucesso = false, mensagem = "Produto não encontrado." });
+                }
+                if (produto.Quantidade <= 0)
+                {
+                    return Json(new { sucesso = false, mensagem = "Produto sem estoque." });
+                }
+                if (qtd > produto.Quantidade)
+                {
+                    qtd = produto.Quantidade; // força limite
                 }
 
                 await _itemCarrinhoAplicacao.AdicionarItemCarrinho(idUsuario, idProduto, qtd);
@@ -58,6 +75,24 @@ namespace Sonatto.Controllers
         {
             try
             {
+                var produto = await _produtoAplicacao.GetPorIdAsync(idProduto);
+                if (produto == null)
+                {
+                    return Json(new { sucesso = false, mensagem = "Produto não encontrado." });
+                }
+                if (produto.Quantidade <= 0)
+                {
+                    return Json(new { sucesso = false, mensagem = "Produto sem estoque." });
+                }
+                if (qtd > produto.Quantidade)
+                {
+                    qtd = produto.Quantidade; // clamp
+                }
+                if (qtd < 1)
+                {
+                    qtd = 1;
+                }
+
                 await _itemCarrinhoAplicacao.AlterarQuantidade(idCarrinho, idProduto, qtd);
 
                 return Json(new

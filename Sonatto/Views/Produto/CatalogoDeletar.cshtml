@@ -9,6 +9,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
+    <link rel="shortcut icon" href="~/imgs/Logos/Monografia.png" />
     <link rel="stylesheet" href="~/css/CatalogoEditar.css" />
 </head>
 <body>
@@ -125,14 +126,202 @@
     </div>
 
     @Html.Partial("_FooterSlim")
+    <script>
+        (function () {
+            const input = document.getElementById("HeaderBusca");
+            const lista = document.getElementById("listaProdutos");
+            const pagination = document.getElementById("pagination");
+            const categoriaBtns = document.querySelectorAll(".categoria-btn");
+            const inputMin = document.getElementById('valor-min');
+            const inputMax = document.getElementById('valor-max');
 
+            let debounceTimer = null;
+            let controller = null;
+
+            function aplicarEstrelas() {
+                const cards = document.querySelectorAll('.exibicaoCard');
+                cards.forEach(card => {
+                    const raw = card.getAttribute('data-avaliacao') || "0";
+                    const rating = parseFloat(raw.toString().replace(',', '.')) || 0;
+                    const stars = card.querySelectorAll('.star');
+                    stars.forEach((star, index) => {
+                        const starValue = index + 1;
+                        star.classList.remove('filled', 'half');
+                        if (rating >= starValue) {
+                            star.classList.add('filled');
+                        } else if (rating >= starValue - 0.5) {
+                            star.classList.add('half');
+                        }
+                    });
+                });
+            }
+
+            // Converte cards padrão (links para página do produto) em cards de delete
+            function transformCardsForDelete() {
+                const cards = document.querySelectorAll('#listaProdutos .exibicaoCard');
+                cards.forEach(card => {
+                    // já convertido
+                    if (card.classList.contains('confirm-delete')) return;
+                    const link = card.closest('a') || card;
+                    // Extrai id do href se existir
+                    let id = link.getAttribute('data-id');
+                    if (!id) {
+                        const href = link.getAttribute('href') || '';
+                        const match = href.match(/Produto\/Produto\/(\d+)/i) || href.match(/id=(\d+)/i);
+                        if (match) id = match[1];
+                    }
+                    if (id) link.setAttribute('data-id', id);
+                    // nome do produto
+                    if (!link.getAttribute('data-name')) {
+                        const nameEl = link.querySelector('.cardNome') || link.querySelector('h3') || link.querySelector('p');
+                        if (nameEl) link.setAttribute('data-name', nameEl.textContent.trim());
+                    }
+                    // imagem
+                    if (!link.getAttribute('data-image')) {
+                        const imgEl = link.querySelector('img');
+                        if (imgEl) link.setAttribute('data-image', imgEl.getAttribute('src'));
+                    }
+                    link.classList.add('confirm-delete');
+                    link.setAttribute('href', '#');
+                    link.style.cursor = 'pointer';
+                });
+            }
+
+            async function fetchAndReplace(search = "", page = 1, categoria = "", min = "", max = "") {
+                if (!lista) return;
+
+                if (controller) controller.abort();
+                controller = new AbortController();
+                const signal = controller.signal;
+
+                const url = `/Produto/BuscarProdutos?search=${encodeURIComponent(search)}&pagina=${encodeURIComponent(page)}&categoria=${encodeURIComponent(categoria)}&minPreco=${encodeURIComponent(min)}&maxPreco=${encodeURIComponent(max)}`;
+
+                try {
+                    const res = await fetch(url, { signal });
+                    if (!res.ok) throw new Error('Erro na resposta');
+                    const html = await res.text();
+
+                    const temp = document.createElement('div');
+                    temp.innerHTML = html;
+
+                    const novaLista = temp.querySelector('#listaProdutosFragment');
+                    const novaPagination = temp.querySelector('#paginationFragment');
+
+                    if (novaLista) {
+                        lista.innerHTML = novaLista.innerHTML;
+                    } else {
+                        lista.innerHTML = html;
+                    }
+
+                    if (novaPagination && pagination) {
+                        pagination.innerHTML = novaPagination.innerHTML;
+                    }
+
+                    aplicarEstrelas();
+                    transformCardsForDelete();
+
+                    const query = new URLSearchParams(window.location.search);
+                    query.set('search', search || "");
+                    // use 'pagina' consistently with server-side links
+                    query.set('pagina', page);
+                    if (categoria) query.set('categoria', categoria); else query.delete('categoria');
+                    if (min) query.set('minPreco', min); else query.delete('minPreco');
+                    if (max) query.set('maxPreco', max); else query.delete('maxPreco');
+                    history.replaceState(null, '', `${window.location.pathname}?${query.toString()}`);
+
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                    console.error('Erro ao buscar produtos:', err);
+                }
+            }
+
+            function debounceFetch(search, page, categoria, min, max) {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => fetchAndReplace(search, page, categoria, min, max), 250);
+            }
+
+            if (input) {
+                let composing = false;
+                input.addEventListener('compositionstart', () => composing = true);
+                input.addEventListener('compositionend', () => composing = false);
+
+                input.addEventListener('input', function (e) {
+                    if (composing) return;
+                    const val = e.target.value.trim();
+                    if (!window.location.pathname.toLowerCase().includes("/produto/catalogo")) {
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(() => {
+                            window.location.href = `/Produto/Catalogo?search=${encodeURIComponent(val)}`;
+                        }, 200);
+                        return;
+                    }
+
+                    debounceFetch(val, 1, '');
+                });
+            }
+
+            categoriaBtns.forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    // parse category from href to support server-generated links
+                    let cat = "";
+                    try {
+                        const url = new URL(btn.href, window.location.origin);
+                        cat = url.searchParams.get('categoria') || "";
+                    } catch (err) {
+                        cat = btn.getAttribute('data-cat') || "";
+                    }
+                    const search = input?.value?.trim() || "";
+                    debounceFetch(search, 1, cat);
+                });
+            });
+
+            document.addEventListener('click', function (e) {
+                const a = e.target.closest('a[data-page]');
+                if (!a) return;
+
+                if (a.getAttribute('aria-disabled') === 'true') {
+                    e.preventDefault();
+                    return;
+                }
+                e.preventDefault();
+                const page = parseInt(a.getAttribute('data-page')) || 1;
+                const params = new URLSearchParams(window.location.search);
+                const search = input?.value?.trim() || params.get('search') || "";
+                const categoria = params.get('categoria') || "";
+                const min = inputMin?.value?.trim() || params.get('minPreco') || "";
+                const max = inputMax?.value?.trim() || params.get('maxPreco') || "";
+                fetchAndReplace(search, page, categoria, min, max);
+
+                const listaTop = lista?.getBoundingClientRect().top;
+                if (listaTop !== undefined) window.scrollTo({ top: window.scrollY + (listaTop - 20), behavior: 'smooth' });
+            });
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const params = new URLSearchParams(window.location.search);
+                const searchParam = params.get('search') || (input?.value || "");
+                // server uses 'pagina'
+                const pageParam = parseInt(params.get('pagina')) || 1;
+                const categoriaParam = params.get('categoria') || "";
+                const minParam = params.get('minPreco') || "";
+                const maxParam = params.get('maxPreco') || "";
+
+                if (inputMin && minParam) inputMin.value = minParam;
+                if (inputMax && maxParam) inputMax.value = maxParam;
+
+                aplicarEstrelas();
+                transformCardsForDelete();
+            });
+
+        })();
+    </script>
     <script>
         (function () {
             const modalOverlay = document.getElementById('confirmModal');
             const confirmImage = document.getElementById('confirmImage');
             const confirmName = document.getElementById('confirmName');
-            const btnCancel = document.getElementById('modalCancel');
             const inputId = document.getElementById('deleteId');
+            const btnCancel = document.getElementById('modalCancel');
 
             function openModal(id, name, image) {
                 inputId.value = id;
@@ -147,14 +336,19 @@
                 modalOverlay.setAttribute('aria-hidden', 'true');
             }
 
-            document.querySelectorAll('.confirm-delete').forEach(el => {
-                el.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    const id = el.getAttribute('data-id');
-                    const name = el.getAttribute('data-name') || '';
-                    const image = el.getAttribute('data-image') || '';
-                    openModal(id, name, image);
-                });
+            // EVENTO DELEGADO (funciona até após paginação/filtro)
+            document.addEventListener('click', function (e) {
+                const card = e.target.closest('.confirm-delete');
+                if (!card) return;
+
+                e.preventDefault();
+                e.stopPropagation();
+
+                const id = card.getAttribute('data-id');
+                const name = card.getAttribute('data-name');
+                const img = card.getAttribute('data-image');
+
+                openModal(id, name, img);
             });
 
             btnCancel.addEventListener('click', closeModal);
@@ -170,5 +364,7 @@
             });
         })();
     </script>
+
+
 </body>
 </html>

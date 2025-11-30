@@ -1,4 +1,4 @@
-﻿/*Be Vietnam Pro*/
+﻿﻿ /*Be Vietnam Pro*/
 @import url('https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 /*Aoboshi One*/ @import url('https://fonts.googleapis.com/css2?family=Aoboshi+One&display=swap');
 /*Battambang */ @import url('https://fonts.googleapis.com/css2?family=Battambang:wght@100;300;400;700;900&display=swap');
@@ -19,15 +19,10 @@ body {
 }
 
 html, body {
-    max-width: auto;
+    max-width: 100%;
     overflow-x: hidden;
 }
 
-.conteudo-page{
-    width:100%;
-    height:100%;
-    margin-top:-1%;
-}
 .breadcrumb {
     margin: 15px 0 0 65px;
     font-family: "Bruno Ace", monospace;
@@ -45,8 +40,8 @@ html, body {
     }
 
 .tituloCarrinho {
-    margin-top:5%;
-    margin-left:5%;
+    margin-top: 5%;
+    margin-left: 5%;
     font-family: "Aoboshi One";
     font-size: 42px;
     font-weight: 600;
@@ -54,12 +49,12 @@ html, body {
 }
 
 .carrinhoContainer {
-    gap:5%;
+    gap: 5%;
     display: flex;
-    flex-direction:row;
-    justify-content:center;
-    margin-bottom:10%;
-    margin-top:5%;
+    flex-direction: row;
+    justify-content: center;
+    margin-bottom: 10%;
+    margin-top: 5%;
 }
 
 .carrinhoLista {
@@ -254,87 +249,97 @@ html, body {
 }
 
 
-.modal{
+.modal {
+    position: fixed;
+    inset: 0;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    padding: 24px;
+    background-color: rgba(0,0,0,0.35);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1200;
+}
+
+.modal-card {
+    width: 440px;
+    max-width: calc(100% - 48px);
+    min-height: 480px;
+    padding: 24px;
     justify-content:center;
     align-items:center;
-    width:100%;
-    z-index:100;
-    height: 100%;
-    position:absolute;
-    display:flex;
-    pointer-events:none;
-    opacity:0;
-    transition:0.5s ease-in-out;
+    background-color: white;
+    border-radius: 15px;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Bruno Ace';
+    border: 2px solid rgba(0,0,0,0.75);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.22);
 }
 
-.modal-card{
-    width:20%;
-    height: 50%;
-    padding:2%;
-    border:solid 1px;
-    align-items:center;
-    background-color:white;
-    border-radius:15px;
-    display:flex;
-    flex-direction:column;
-    font-family: 'Source Code Pro';
-}
-
-.modal-linhas{
-    width:100%;
-    display:flex;
-    align-items:center;
-    flex-direction:column;
-}
-
-.modal-linhas label , .modal-linhas2 label {
-    align-self: flex-start
-}
-
-.modal-linhas2{
-    margin-top:3%;
+.modal-linhas {
     width: 100%;
     display: flex;
     align-items: center;
     flex-direction: column;
 }
 
-.input-venda{
-    width:100%;
-    height:40px;
-    font-size:16px;
-    font-family:"Source Code Pro";
-}
+    .modal-linhas label, .modal-linhas2 label {
+        align-self: flex-start
+    }
 
-.modal-botoes{
-    width:100%;
+.modal-linhas2 {
+    margin-top: 3%;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+}
+.conteudo-modal{
+    width:80%;
     height:100%;
     display:flex;
+    justify-content:center;
     align-items:center;
-    gap:50px;
-    
-    justify-content:end;
+    flex-direction:column;
+}
+.input-venda {
+    width: 100%;
+    height: 40px;
+    font-size: 16px;
+    font-family: "Source Code Pro";
+}
+
+.modal-botoes {
+    width: 100%;
+    height: 70px;
+    display: flex;
+    align-items: center;
+    gap: 50px;
+    margin-top:15%;
+    justify-content: space-between;
 }
 
 .btn-cancel {
-    height: 40%;
+    height: 80%;
     width: 50%;
     background-color: #837878;
     border: 1px solid;
     border-radius: 10px;
-    font-family: "Bruno Ace";
     color: white;
-}
-.btn-confirm {
-    height: 40%;
-    width: 50%;
-    border: 1px solid;
     font-family: "Bruno Ace";
-    border-color: #060606;
-    border-radius: 10px;
 }
 
-/* ===== Modal de cartão e toast (movido do inline do view) ===== */
+.btn-confirm {
+    height: 80%;
+    width: 50%;
+    border: 1px solid;
+    border-color: #060606;
+    border-radius: 10px;
+    font-family: "Bruno Ace";
+}
+
 
 /* overlay cobre toda a tela e aplica blur no fundo */
 .modal-cartao {
@@ -350,92 +355,92 @@ html, body {
     padding: 24px;
 }
 
-.modal-cartao .card-card {
-    width: 680px;
-    max-width: calc(100% - 48px);
-    min-height: 420px;
-    padding: 28px;
-    background: white;
-    border-radius: 12px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    font-family: 'Source Code Pro';
-    border: 2px solid rgba(0,0,0,0.75);
-    box-shadow: 0 18px 40px rgba(0,0,0,0.22);
-}
+    .modal-cartao .card-card {
+        width: 680px;
+        max-width: calc(100% - 48px);
+        min-height: 420px;
+        padding: 28px;
+        background: white;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        font-family: 'Source Code Pro';
+        border: 2px solid rgba(0,0,0,0.75);
+        box-shadow: 0 18px 40px rgba(0,0,0,0.22);
+    }
 
-.modal-cartao .card-title {
-    font-family: "Bruno Ace", monospace;
-    font-size: 18px;
-    font-weight: 700;
-    color: #111;
-}
+    .modal-cartao .card-title {
+        font-family: "Bruno Ace", monospace;
+        font-size: 18px;
+        font-weight: 700;
+        color: #111;
+    }
 
-.modal-cartao .card-input {
-    width: 100%;
-    height: 46px;
-    border-radius: 8px;
-    border: 1px solid #cfcfcf;
-    padding: 10px 14px;
-    background: #f6f6f6;
-    font-size: 15px;
-    box-sizing: border-box;
-}
+    .modal-cartao .card-input {
+        width: 100%;
+        height: 46px;
+        border-radius: 8px;
+        border: 1px solid #cfcfcf;
+        padding: 10px 14px;
+        background: #f6f6f6;
+        font-size: 15px;
+        box-sizing: border-box;
+    }
 
-.modal-cartao .card-row {
-    display: flex;
-    gap: 14px;
-    align-items: center;
-    justify-content: space-between;
-}
+    .modal-cartao .card-row {
+        display: flex;
+        gap: 14px;
+        align-items: center;
+        justify-content: space-between;
+    }
 
-.modal-cartao .card-small {
-    width: 120px;
-    height: 44px;
-    border-radius: 8px;
-    border: 1px solid #cfcfcf;
-    padding: 8px 10px;
-    background: #f6f6f6;
-    font-size: 14px;
-    box-sizing: border-box;
-}
+    .modal-cartao .card-small {
+        width: 120px;
+        height: 44px;
+        border-radius: 8px;
+        border: 1px solid #cfcfcf;
+        padding: 8px 10px;
+        background: #f6f6f6;
+        font-size: 14px;
+        box-sizing: border-box;
+    }
 
-.modal-cartao .brands {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-    margin-left: 12px;
-}
+    .modal-cartao .brands {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-left: 12px;
+    }
 
-.modal-cartao .brands img {
-    height: 28px;
-    opacity: 0.45;
-    transition: opacity 160ms ease, transform 160ms ease;
-}
+        .modal-cartao .brands img {
+            height: 28px;
+            opacity: 0.45;
+            transition: opacity 160ms ease, transform 160ms ease;
+        }
 
-.modal-cartao .brands img.active {
-    opacity: 1;
-    transform: translateY(-1px);
-}
+            .modal-cartao .brands img.active {
+                opacity: 1;
+                transform: translateY(-1px);
+            }
 
-.modal-cartao .card-actions {
-    display: flex;
-    gap: 12px;
-    justify-content: center;
-    margin-top: 12px;
-}
+    .modal-cartao .card-actions {
+        display: flex;
+        gap: 12px;
+        justify-content: center;
+        margin-top: 12px;
+    }
 
-.modal-cartao .btn-cancel {
-    background: #8f7777;
-    color: #fff;
-    border: none;
-    padding: 10px 22px;
-    border-radius: 20px;
-}
+    .modal-cartao .btn-cancel {
+        background: #8f7777;
+        color: #fff;
+        border: none;
+        padding: 10px 22px;
+        border-radius: 20px;
+    }
 
 
-.modal-pix { 
+.modal-pix {
     position: fixed;
     inset: 0;
     display: none;
@@ -466,44 +471,44 @@ html, body {
     }
 
 
-.modal-pix .pix-card::before,
-.modal-pix .pix-card::after {
-    content: "";
-    position: absolute;
-    left: 22px;
-    right: 22px;
-    height: 12px;
-    background: #26b3a9;
-    border-radius: 6px;
-    opacity: 1;
-}
+        .modal-pix .pix-card::before,
+        .modal-pix .pix-card::after {
+            content: "";
+            position: absolute;
+            left: 22px;
+            right: 22px;
+            height: 12px;
+            background: #26b3a9;
+            border-radius: 6px;
+            opacity: 1;
+        }
 
-.modal-pix .pix-card::before {
-    top: 82px; 
-}
+        .modal-pix .pix-card::before {
+            top: 82px;
+        }
 
-.modal-pix .pix-card::after {
-    bottom: 22px;
-}
+        .modal-pix .pix-card::after {
+            bottom: 22px;
+        }
 
-.modal-pix .pix-header {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    justify-content: center;
-    padding: 6px 0;
-    z-index: 2;
-}
+    .modal-pix .pix-header {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        justify-content: center;
+        padding: 6px 0;
+        z-index: 2;
+    }
 
-.modal-pix .pix-title {
-    font-family: "Bruno Ace";
-    font-size: 20px;
-    letter-spacing: 1px;
-    color: #0d4039;
-    z-index: 2;
-    text-transform: uppercase;
-}
+    .modal-pix .pix-title {
+        font-family: "Bruno Ace";
+        font-size: 20px;
+        letter-spacing: 1px;
+        color: #0d4039;
+        z-index: 2;
+        text-transform: uppercase;
+    }
 
 
     .modal-pix .pix-body {
@@ -529,11 +534,11 @@ html, body {
         border-radius: 8px;
     }
 
-    .modal-pix .pix-qr img {
-        max-width: 100%;
-        max-height: 100%;
-        display: block;
-    }
+        .modal-pix .pix-qr img {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+        }
 
     .modal-pix .pix-info {
         margin-top: 14px;
@@ -574,12 +579,12 @@ html, body {
         cursor: pointer;
     }
 
-    .modal-pix .btn-copy.copied {
-        background: #26b3a9;
-        color: #fff;
-    }
+        .modal-pix .btn-copy.copied {
+            background: #26b3a9;
+            color: #fff;
+        }
 
-   
+
     .modal-pix .btn-finalize {
         background: #000;
         color: #fff;
@@ -592,7 +597,7 @@ html, body {
         z-index: 2;
     }
 
-    
+
     .modal-pix .pix-note {
         font-size: 12px;
         color: #666;
@@ -687,7 +692,9 @@ html, body {
 }
 
 @keyframes spin {
-    to { transform: rotate(360deg); }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* mensagens de erro e destaque de campos inválidos */
@@ -721,22 +728,51 @@ html, body {
     font-family: "Bruno Ace", monospace;
 }
 
-.toast.show {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-}
+    .toast.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
 
 @media (max-width: 760px) {
-    .modal-cartao { padding: 12px; }
-    .modal-cartao .card-card { width: 100%; padding: 16px; min-height: auto; }
-    .modal-cartao .card-row { flex-direction: column; align-items: stretch; gap: 8px; }
-    .modal-cartao .card-small { width: 100%; }
-    .btnFinalizar--modal { width: 100%; }
+    .modal-cartao {
+        padding: 12px;
+    }
 
-    .modal-pix .pix-card { width: 100%; height: auto; padding: 18px; }
-    .modal-pix .pix-body { flex-direction: column; align-items: center; }
-    .modal-pix .pix-info { width: 100%; }
+        .modal-cartao .card-card {
+            width: 100%;
+            padding: 16px;
+            min-height: auto;
+        }
+
+        .modal-cartao .card-row {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+        }
+
+        .modal-cartao .card-small {
+            width: 100%;
+        }
+
+    .btnFinalizar--modal {
+        width: 100%;
+    }
+
+    .modal-pix .pix-card {
+        width: 100%;
+        height: auto;
+        padding: 18px;
+    }
+
+    .modal-pix .pix-body {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .modal-pix .pix-info {
+        width: 100%;
+    }
 
     .modal-pix .pix-card.processing .pix-processing {
         left: 12px;
@@ -753,5 +789,5 @@ html, body {
 
 #msg-vazio {
     font-family: "Bruno Ace", monospace;
-    font-size:24px; 
+    font-size: 24px;
 }
