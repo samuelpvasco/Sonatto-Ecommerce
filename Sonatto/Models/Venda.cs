@@ -12,7 +12,6 @@ namespace Sonatto.Models
         public DateTime DataVenda { get; set; }
         
 
-        
 
     }
 }

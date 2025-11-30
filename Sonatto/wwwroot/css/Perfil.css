@@ -1,9 +1,6 @@
-﻿
-/* Navegação das páginas */
+﻿/* Navegação das páginas */
 .navDasPag {
-    margin-top:7%;
-    margin-left:4%;
-    margin-bottom:2%;
+    margin: 7% 0 2% 4%;
     font-family: "Bruno Ace", monospace;
     font-size: 24px;
 }
@@ -17,15 +14,13 @@ body {
     font-family: "Bruno Ace", regular;
 }
 
-
+/* Header LogOff */
 .tituloLogOff {
-    width: 100%;
-    height: auto;
     display: flex;
-    flex-direction: row;
+    justify-content: space-around;
     align-items: center;
-    justify-content:space-around;
-    gap:930px;
+    gap: 930px;
+    width: 100%;
     background-color: rgba(217, 217, 217, 0.28);
 }
 
@@ -35,147 +30,110 @@ body {
         font-size: 20px;
     }
 
-.logOut{
-    width:auto;
-    height:auto;
-    display:flex;
-    flex-direction:row;
-    border-style:none;
-    background:none;
-    justify-content:center;
-    align-items:center;
-    gap:20px;
+.logOut {
+    display: flex;
+    gap: 20px;
+    background: none;
+    border: none;
+    align-items: center;
 }
 
-.logOut img {
-    width: auto;
-    height: 50px;
-}
+    .logOut img {
+        height: 50px;
+    }
 
-.logOut h4 {
-    font-family:'Bruno Ace';
-    font-weight:400;
-    font-size:15px;
-    color: red;
-    justify-self: end;
-    justify-items: center;
-}
+    .logOut h4 {
+        font-family: "Bruno Ace";
+        font-weight: 400;
+        font-size: 15px;
+        color: red;
+    }
 
+/* Últimas compras */
 .ultimasCompras {
     background-color: rgba(195, 192, 189, 0.6);
     width: 100%;
     margin-top: 5%;
-    padding: 0 0 2% 0;
+    height: auto;
     border: 1px solid #E2E2E2;
 }
 
 
 
-.toggle-input {
-    display: none;
-}
-
-.toggle-label {
-    cursor: pointer;
-    display: inline-block;
-}
-
-    .toggle-label img {
-        width: 80px;
-        height: 40px;
-        margin: -4% 5% 0 0;
-        display: flex;
-        justify-self: end;
-        background-color: blueviolet;
-        transition: transform 0.3s ease;
-    }
-
-#toggleCompras:checked + h1 + .toggle-label img {
-    transform: rotate(180deg);
-}
-
-.cardsDados,
-.dadosDaCompra {
-    max-height: 2000px;
-    overflow: hidden;
-    transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.4s ease;
-    opacity: 1;
-    padding: 16px 0;
-}
-
-#toggleCompras:not(:checked) ~ .cardsDados,
-#toggleCompras:not(:checked) ~ .dadosDaCompra {
-    max-height: 0;
-    opacity: 0;
-    padding: 0;
-    margin: 0;
-}
-
-
-    #toggleCompras:not(:checked) ~ .cardsDados *,
-    #toggleCompras:not(:checked) ~ .dadosDaCompra * {
-        visibility: hidden;
-    }
-
+/* Título de seção com seta */
 .tituloBar {
     display: flex;
-    align-items: center;
     justify-content: space-between;
-    padding: 2% 0 0 0;
+    align-items: center;
+    height: 70px;
+    border: 3px solid #E2E2E2;
     width: 100%;
 }
 
     .tituloBar h1 {
-        margin: 0 0 0 6.7%;
-        font-size:20px;
+        margin-left: 6.7%;
+        font-size: 20px;
     }
 
     .tituloBar img {
-        width: auto;
         height: 25px;
-        margin: 0% 5% 0 0;
-        
+        margin-right: 5%;
+        cursor: pointer;
     }
 
+.toggleBtn {
+    transition: transform .3s ease;
+}
+
+.girar {
+    transform: rotate(180deg);
+}
+
+/* Cards compras */
+
+.cards {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10%;
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+    max-height: 0;
+    transition: max-height .5s ease, opacity .35s ease;
+}
+
 .cardsDados {
-    width: 40%;
-    height: 700px;
-    max-height: 700px;
-    margin: 3% 0 0 8%;
+    margin-top:2%;
+    margin-bottom:2%;
+    display:flex;
+    flex-direction:column;
+    gap: 20px;
+    width: 35%;
+    max-height: 500px;
     overflow-y: auto;
-    overflow-x: hidden;
-    transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.4s ease, margin 0.4s ease;
+    
 }
 
 .cardCompras {
-    margin: 3% 0 3% 0;
-    background-color: black;
-    display: flex;
-    width: 98%;
-    max-width: 98%;
+    width: 100%;
     height: 120px;
-    justify-self: center;
-    border-radius: 10px 0px 0px 10px;
+    background-color: black;
+    border-radius: 10px;
+    display: flex;
 }
 
     .cardCompras img {
-        height: auto;
-        width: 10%;
-        margin: 0 0 0 0;
-        justify-self: center;
-        align-self: center;
-        padding: 0 2% 0 2%;
-        border-radius: 10px 0px 0px 10px;
+        width: 15%;
+        padding: 2%;
     }
 
 .dadosCard {
-    width: 100%;
-    height: 100%;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
     background-color: white;
+    flex: 1;
+    display: flex;
+    justify-content:center;
+    flex-direction: column;
 }
 
     .dadosCard p {
@@ -184,318 +142,237 @@ body {
         font-weight: 500;
     }
 
-.dados{
-    width:100%;
-    margin-top:5px;
-}
 .maisDetalhes {
+    font-size: 13px !important;
     color: gray;
-    font-size:13px !important;
 }
 
+/* Dados da compra */
 .dadosDaCompra {
-    background-color: rgba(141, 141, 141, 1);
-    position: absolute;
-    justify-self: end;
-    height: 50%;
-    width: 35%;
-    margin: -37% 10% 0 0;
-    transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.4s ease, visibility 0s linear 0.4s;
+    width: 45%;
+    display: flex;
+    max-height: 500px;
+    overflow-y: auto;
+    flex-direction: column;
+    background-color: #8D8D8D;
+    transition: max-height .4s ease, opacity .3s ease, margin .4s ease, visibility 0s linear .4s;
 }
 
     .dadosDaCompra h1 {
-        justify-self: center;
-        color: #FFFFFF;
-        font-size:22px;
-        font-weight:400;
+        color: white;
+        align-self:center;
+        font-size: 22px;
+        font-weight: 400;
     }
 
 .subCard {
-    background-color: rgba(195, 195, 195, 1);
+    display:flex;
+    flex-direction:column;
+    gap:50px;
+    background-color: #C3C3C3;
     height: 78%;
-    padding: 2% 0 0 0;
-}
-
-.data {
-    justify-self: center;
-    margin: 0 0 5% 0;
-    font-size:15px;
+    padding-top: 2%;
 }
 
 .grupo {
-    width:100%;
+    width: 100%;
     height: 70%;
     overflow-y: auto;
-    overflow-x: hidden;
-    padding: 2% 0;
     display: flex;
     flex-direction: column;
-    align-items:center;
+    align-items: center;
     gap: 5%;
-    box-sizing: border-box;
 }
 
 .itensDados {
-    background-color: rgba(234, 234, 234, 1);
     width: 90%;
-    height: auto;
+    background-color: #EAEAEA;
     display: flex;
+    margin-top:5%;
     justify-content: space-around;
     align-items: center;
-    position: relative;
     box-sizing: border-box;
 }
 
-.quantiade{
-    width:100%;
-}
-
-.subtotal {
-    justify-self: end;
-}
-
 .valor {
-    margin: 4% 0 0 6.7%;
-    font-size:17px;
+    margin-left:5%;
+    margin-top:-4%;
+    font-size: 17px;
 }
 
+/* Editar conta */
 .editarConta {
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    background-color: rgba(195, 192, 189, 0.6);
     width: 100%;
-    padding: 0 0 2% 0;
+    height:auto;
+    background-color: rgba(195, 192, 189, 0.6);
     margin-top: 2%;
 }
 
-
 .conteudoEditar {
-    height: auto;
-    width: 100%;
-    margin: 0 -0.5% 0 0 !important;
-    margin-top:10px !important;
-    opacity: 0;
-    padding: 0;
+    opacity:0;
+    max-height:0;
+    padding-bottom:0%;
+    background-color: #9D9D9D;
+    display:flex;
+    flex-direction:column;
     overflow: hidden !important;
-    background-color: rgba(157, 157, 157, 1);
-    transition: max-height 0.4s ease, opacity 0.3s ease, padding 0.4s ease, margin 0.4s ease;
+    transition: max-height .4s ease, opacity .3s ease, padding .4s ease, margin .4s ease;
 }
 
     .conteudoEditar p {
-        justify-self: center;
-        font-size: 25px;
         color: white;
-        margin: 0 0 1% 0;
+        font-size: 25px;
+        align-self:center;
     }
 
 .seusDadosCampo {
-    overflow: hidden !important;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(189, 187, 187, 1);
+    background-color: #BDBBBB;
     display: flex;
-    flex-direction:column;
-    justify-content: center;
+    flex-direction: column;
     align-items: center;
-
 }
 
 .colunas {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10%;
+    margin-top:3%;
     width: 95%;
-    height: 100%;
-    justify-self: center;
+    height: 300px;
+    display: flex;
+    gap: 4%;
 }
 
-    .colunas::first-line {
-        border-right: 1px solid black;
-    }
 
 .coluna1 {
-    height: 60%;
-    width: 100%;
-    margin: 10% 0 0 10%;
-    border-right: 3px solid rgba(131, 123, 120, 1);
-    padding-right: 13%;
+    width:50%;
+    display:flex;
+    flex-direction:column;
+    border-right: 3px solid #837B78;
+    padding-right: 5%;
+    gap:10px;
 }
-
-    .coluna1 input {
-        background-color: white;
-        border: 1px solid gray;
-        border-radius: 10px;
-        height: 25%;
-        width: 100%;
-        margin: 2% 0 4% 0;
-        font-size: 20px;
-        padding-left:15px;
-        color: black;
-    }
-
 .coluna2 {
-    height: 60%;
-    width: 100%;
-    margin: 10% 0 0 0%;
-    justify-self: center;
+    width: 50%;
+    height:auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
+    .coluna1 input,
     .coluna2 input {
-        background-color: white;
-        border: 1px solid gray;
+        background: white;
+        border: 3px solid #AFAFAF;
         border-radius: 10px;
-        height: 25%;
         width: 100%;
-        margin: 2% 0 4% 0;
-        padding-left:15px;
+        height: 15%;
         font-size: 20px;
+        padding-left: 15px;
         color: black;
     }
 
-.coluna3 {
-    margin: 10% 0 0 0;
-}
+
 
     .coluna3 p {
+        font-size: 25px;
         color: #3C3C43;
-        font-size: 29px;
     }
 
 .botoes {
-    align-self: flex-start;
-    width: 27%;
-    margin-left:4.3%;
-    gap: 15%;
-    display: flex;
-    justify-content: center;
+    width: 30%;
     height:50px;
-    margin-top:5%;
-    margin-bottom:2%;
+    margin-top:3%;
+    margin-bottom:3%;
+    margin-left:3%;
+    display: flex;
+    align-self:flex-start;
+    gap:15%;
+
+}
+
+.btn-cancelar,
+.btn-alterar {
+    width: 40%;
+    border: none;
+    border-radius: 10px;
+    font-size: 20px;
+    font-family: "Bruno Ace";
+    font-weight: 400;
 }
 
 .btn-cancelar {
-    width: 40%;
-    height: auto;
-    border-style:none;
-    border-radius: 10px;
+    background-color: #626262;
     color: white;
-    background-color: rgba(98, 98, 98, 1);
-    font-size: 20px;
-    font-family: "Bruno Ace", regular;
-    font-weight: 400;
 }
 
 .btn-alterar {
-    width: 40%;
-    height: auto;
-    border-style: none;
-    border-radius: 10px;
-    color: black;
     background-color: #F9F9F9;
-    font-size: 20px;
-    font-family: "Bruno Ace", regular;
-    font-weight: 400;
+    color: black;
 }
 
-/*Talvez voce goste css*/
+/* Talvez você goste */
 .talvezVoceGoste {
     width: 100%;
-    height:10%;
-    
-    margin-top:5%;
-    padding: 2% 0 0 0;
+    margin-top: 5%;
+    padding-top: 2%;
 }
 
 .titulo-goste {
-    width: 100%;
-    display: flex;
     background-color: rgba(0, 0, 0, 0.6);
     height: 25%;
+    display: flex;
 }
 
 .talvezVoceGosteP {
     font-size: 22px;
-    display: flex;
     color: white;
-    padding: 0 0 0 5%;
+    padding-left: 5%;
 }
 
-.produtos{
-    height: 10%;
-    max-height: 10%;
+.produtos {
     width: 100%;
-    max-width: 100%;
     display: flex;
-    align-items: center;
     justify-content: center;
-    margin: 3% 0 0 0;
-    background-color: white;
     gap: 5%;
+    margin-top: 3%;
+    background-color: white;
 }
 
 .exibicaoCard {
-    display: flex;
-    flex-direction: column;
     width: 316px;
-    height: 420px;
-    font-family: "Bruno Ace", sans-serif;
-    margin: 40px 0 64px 0;
-}
-
-.exibicaoCardimg {
-    width: 100%; 
-    height: 316px; 
-    object-fit: cover; 
-    border-radius: 8px; 
-}
-
-
-.exibicaoCard {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start; 
-    width: 316px;
-    min-height: 500px; 
-    font-family: "Bruno Ace", sans-serif;
+    min-height: 500px;
     margin-bottom: 64px;
-    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
-
 
 .exibicaoCardimg {
     width: 100%;
-    height: 316px; 
-    object-fit: cover; 
+    height: 316px;
+    object-fit: cover;
     border-radius: 8px;
 }
 
-
 .cardNome {
-    margin: 5px 0 5px 0;
+    margin: 5px 0;
     max-height: 66px;
     font-size: 22px;
     line-height: 1.2;
-    word-break: break-word; 
 }
 
 .cardPreco {
     font-size: 30px;
     margin-top: 5px;
-    height: 36px; 
 }
 
 .cardNotasNota {
     font-size: 25px;
     margin-top: 5px;
-    height: 30px; 
 }
 
 .rating-container {
     display: flex;
     align-items: center;
-    font-size: 40px;
     gap: 2px;
+    font-size: 40px;
 }
 
 .star {
@@ -523,7 +400,7 @@ body {
             position: absolute;
             left: 0;
             top: -26.5px;
-            width: 40%; 
+            width: 40%;
             overflow: hidden;
             color: gold;
         }
@@ -533,9 +410,8 @@ body {
             position: absolute;
             left: 15px;
             top: -26.5px;
-            width: 41%; 
+            width: 41%;
             overflow: hidden;
             color: lightgray;
             transform: scaleX(-1);
         }
-        

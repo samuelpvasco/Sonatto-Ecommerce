@@ -1,6 +1,8 @@
 ﻿.navDasPag {
-    margin: 9% 0 0 7%;
-    font-family: "Source Code Pro", monospace;
+    margin-top: 7%;
+    margin-left: 4%;
+    margin-bottom: 2%;
+    font-family: "Bruno Ace", monospace;
     font-size: 24px;
 }
 
@@ -8,37 +10,53 @@
         text-decoration: none;
         color: gray;
     }
-
 body {
     font-family: "Bruno Ace", regular;
 }
 
 
 .tituloLogOff {
-    margin: 0 0 3% 0;
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    gap: 930px;
+    background-color: rgba(217, 217, 217, 0.28);
 }
 
     .tituloLogOff h2 {
         color: gray;
-        margin: 2% 0 0 6.7%;
         font-weight: 400;
-        font-size: 45px;
+        font-size: 20px;
     }
 
-.logOff img {
-    width: 50px;
-    height: 60px;
-    justify-self: end;
+.logOut {
+    width: auto;
+    height: auto;
     display: flex;
-    margin: -2% 2.5% 0 0;
+    flex-direction: row;
+    border-style: none;
+    background: none;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
 }
 
-.logOff h4 {
-    color: red;
-    justify-self: end;
-    justify-items: center;
-    margin: -2% 6% 0 0;
-}
+    .logOut img {
+        width: auto;
+        height: 50px;
+    }
+
+    .logOut h4 {
+        font-family: 'Bruno Ace';
+        font-weight: 400;
+        font-size: 15px;
+        color: red;
+        justify-self: end;
+        justify-items: center;
+    }
 
 .conteudo {
     width: 100%;

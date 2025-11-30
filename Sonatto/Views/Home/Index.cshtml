@@ -23,7 +23,7 @@
 
         <div class="comprarERegistros">
 
-            <button id="Comprar" href="#">Comprar</button>
+            <a asp-controller="Produto" asp-action="Catalogo" id="Comprar" >Comprar</a>
 
             <div class="registros">
                 <ul>
@@ -137,7 +137,7 @@
 
         </div>
     </div>
-    <button class="verMaisButton">Ver Mais</button>
+    <a asp-controller="Produto" asp-action="Catalogo" class="verMaisButton">Ver Mais</a>
     <div class="MaisVendidos">
         <h1 class="title">Mais Vendidos</h1>
         <div class="cardContainer">
@@ -171,7 +171,7 @@
             }
 
         </div>
-        <button class="verMaisButton">Ver Mais</button>
+        <a asp-controller="Produto" asp-action="Catalogo" class="verMaisButton">Ver Mais</a>
         <div class="filtroDiv">
             <h1>Filtre pelo TIPO do instrumento</h1>
 

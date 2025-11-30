@@ -68,13 +68,13 @@
                 // se clicou dentro do input ou dentro do form, não envia
                 if (ev.target.closest && (ev.target.closest('form') === formulario)) return;
                 if (compondo) return;
-                // só submete se houve mudança desde o último envio
+                // só enviar se houve mudança desde o último envio
                 if (ultimoValor !== ultimoEnviado) {
                     enviarFormulario();
                 }
             });
 
-            // Ao submeter (por qualquer método), atualiza últimoEnviado para evitar reenvio
+            // Ao enviar atualiza últimoEnviado para evitar reenvio
             formulario.addEventListener('submit', function () {
                 ultimoEnviado = ultimoValor;
                 clearTimeout(temporizador);

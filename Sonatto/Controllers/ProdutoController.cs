@@ -13,10 +13,14 @@ namespace Sonatto.Controllers
     public class ProdutoController : Controller
     {
         private readonly IProdutoAplicacao _produtoAplicacao;
+        private readonly IWebHostEnvironment _env;
+        private readonly ILogger<ProdutoController> _logger;
 
-        public ProdutoController(IProdutoAplicacao produtoAplicacao)
+        public ProdutoController(IProdutoAplicacao produtoAplicacao, IWebHostEnvironment env, ILogger<ProdutoController> logger)
         {
             _produtoAplicacao = produtoAplicacao;
+            _env = env;
+            _logger = logger;
         }
 
 
@@ -134,11 +138,11 @@ namespace Sonatto.Controllers
             public Produto Produto { get; set; }
             public List<Produto> Produtos { get; set; }
         }
-        
+
         public async Task<IActionResult> Produto(int id)
         {
             var produto = await _produtoAplicacao.GetPorIdAsync(id);
-            var produtos = await _produtoAplicacao.GetTodosAsync(); 
+            var produtos = await _produtoAplicacao.GetTodosAsync();
 
             var visualizador = new ComboDeView
             {
@@ -160,10 +164,9 @@ namespace Sonatto.Controllers
         }
 
 
-        // Método para cadastrar Produto
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Adicionar(Produto produto, int qtdEstoque, List<string> imagens)
+        public async Task<IActionResult> Adicionar(Produto produto, List<string> imagens)
         {
             int? idUsu = HttpContext.Session.GetInt32("UserId");
             if (idUsu == null)
@@ -174,39 +177,40 @@ namespace Sonatto.Controllers
 
             try
             {
-                //Adiciona o produto e obtém o ID
-                int idProduto = await _produtoAplicacao.AdicionarProduto(produto, qtdEstoque, idUsu.Value);
+                // Adiciona o produto
+                int idProduto = await _produtoAplicacao.AdicionarProduto(produto, idUsu.Value);
 
-                // Adiciona as imagens
+                // Apenas salva as URLs recebidas
                 if (imagens != null && imagens.Count > 0)
                 {
                     foreach (var url in imagens)
                     {
-                        if (!string.IsNullOrWhiteSpace(url))
-                        {
-                            await _produtoAplicacao.AdicionarImagens(idProduto, url);
-                            await Task.Delay(150); // pequeno delay entre inserts
-                        }
+                        if (string.IsNullOrWhiteSpace(url)) continue;
+
+                        await _produtoAplicacao.AdicionarImagens(idProduto, url);
                     }
                 }
 
-                TempData["Sucesso"] = "Produto e imagens cadastrados com sucesso!";
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction("Produto", new { id = idProduto });
             }
             catch (Exception ex)
             {
-                TempData["Erro"] = "Erro ao cadastrar produto: " + ex.Message;
+                _logger.LogError(ex, "Erro ao cadastrar produto");
+                TempData["Erro"] = ex.ToString();
                 return View(produto);
             }
         }
 
 
+
+
         // GET: Editar — agora retorna ComboDeView para que a view de edição mostre o catálogo lateral
+        [HttpGet]
         public async Task<IActionResult> Editar(int? id)
         {
             if (!id.HasValue)
             {
-               
+
                 return RedirectToAction(nameof(CatalogoEditar));
             }
 
@@ -214,11 +218,11 @@ namespace Sonatto.Controllers
             if (produto == null)
                 return NotFound();
 
-            
+
             return View(produto);
         }
 
-       
+
         public async Task<IActionResult> CatalogoEditar(string search, string categoria, int pagina = 1, decimal? minPreco = null, decimal? maxPreco = null)
         {
             int produtosPorPagina = 12;
@@ -273,13 +277,33 @@ namespace Sonatto.Controllers
         // POST: EDITA PRODUTO
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Editar(Produto produto, int qtdEstoque)
+        [ActionName("Editar")]
+        public async Task<IActionResult> EditarPost(Produto produto)
         {
             int? idUsu = HttpContext.Session.GetInt32("UserId");
+            if (idUsu == null)
+                return RedirectToAction("Index", "Login");
 
-            await _produtoAplicacao.Alterar_e_DeletarProduto(produto, qtdEstoque, "ALTERAR", idUsu.Value);
+            if (!ModelState.IsValid)
+            {
+                // retorna para a view de edição exibindo validações
+                return View(produto);
+            }
 
-            return RedirectToAction(nameof(Index));
+            try
+            {
+                // Apenas atualiza os dados básicos do produto (nome, marca, preço, etc.)
+                await _produtoAplicacao.Alterar_e_DeletarProduto(produto, "alterar", idUsu.Value);
+
+                TempData["Sucesso"] = "Produto alterado com sucesso!";
+                return RedirectToAction("Produto", new { id = produto.IdProduto });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao alterar produto id {Id}", produto?.IdProduto);
+                TempData["Erro"] = "Erro ao salvar alterações.";
+                return View(produto);
+            }
         }
 
 
@@ -309,15 +333,15 @@ namespace Sonatto.Controllers
                 return NotFound();
 
             // Use the existing app method to perform delete (action string "DELETAR")
-            await _produtoAplicacao.Alterar_e_DeletarProduto(produto, 0, "DELETAR", idUsu.Value);
+            await _produtoAplicacao.Alterar_e_DeletarProduto(produto, "deletar", idUsu.Value);
 
             TempData["Sucesso"] = "Produto deletado com sucesso.";
             // Redirect back to the selection catalog
-            return RedirectToAction(nameof(CatalogoEditar));
+            return RedirectToAction(nameof(Catalogo));
         }
 
 
-        // Upload simples para pasta temporária do sistema e retorna URL para servir
+        // Upload para pasta temporária do sistema e retorna URL para servir
         [HttpPost]
         public async Task<IActionResult> UploadImagem(IFormFile file)
         {

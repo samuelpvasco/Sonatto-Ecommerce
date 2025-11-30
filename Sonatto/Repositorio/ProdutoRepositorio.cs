@@ -1,14 +1,17 @@
 ﻿using Dapper;
 using MySql.Data.MySqlClient;
-using Org.BouncyCastle.Crypto;
 using Sonatto.Models;
 using Sonatto.Repositorio.Interfaces;
 using System.ComponentModel;
 using System.Data;
+using System.Linq;
+using System.Collections.Generic;
+using System;
+using System.Threading.Tasks;
 
 namespace Sonatto.Repositorio
 {
-    public class ProdutoRepositorio :IProdutoRepositorio
+    public class ProdutoRepositorio : IProdutoRepositorio
     {
         private readonly string _connectionString;
 
@@ -16,6 +19,8 @@ namespace Sonatto.Repositorio
         {
             _connectionString = connectionString;
         }
+
+
 
         public async Task AdicionarImagens(int idProduto, string url)
         {
@@ -29,7 +34,7 @@ namespace Sonatto.Repositorio
             await conn.ExecuteAsync("sp_AdicionarImagens", parametros, commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<int> AdicionarProduto(Produto produto, int qtdEstoque, int idUsu)
+        public async Task<int> AdicionarProduto(Produto produto, int idUsu)
         {
             using var conn = new MySqlConnection(_connectionString);
 
@@ -40,7 +45,7 @@ namespace Sonatto.Repositorio
             parametros.Add("vMarca", produto.Marca);
             parametros.Add("vAvaliacao", produto.Avaliacao);
             parametros.Add("vCategoria", produto.Categoria);
-            parametros.Add("vQtdEstoque", qtdEstoque);
+            parametros.Add("vQtdEstoque", produto.Quantidade);
             parametros.Add("vIdUsuario", idUsu);
 
             // Pega o ID retornado do produto criado
@@ -54,7 +59,7 @@ namespace Sonatto.Repositorio
         }
 
 
-        public async Task Alterar_e_DeletarProduto(Produto produto, int qtdEstoque, string acaoAlterar, int idUsu)
+        public async Task Alterar_e_DeletarProduto(Produto produto, string acaoAlterar, int idUsu)
         {
             using var conn = new MySqlConnection(_connectionString);
 
@@ -67,7 +72,7 @@ namespace Sonatto.Repositorio
             parametros.Add("vMarca", produto.Marca);
             parametros.Add("vAvaliacao", produto.Avaliacao);
             parametros.Add("vCategoria", produto.Categoria);
-            parametros.Add("vQtdEstoque", qtdEstoque);
+            parametros.Add("vQtd", produto.Quantidade);
             parametros.Add("vIdUsuario", idUsu);
             parametros.Add("vAcao", acaoAlterar);
 
@@ -100,8 +105,8 @@ namespace Sonatto.Repositorio
                 Preco = primeiroRegistro.Preco,
                 Marca = primeiroRegistro.Marca,
                 Avaliacao = primeiroRegistro.Avaliacao,
-                // Conversão explícita para evitar RuntimeBinderException
                 Disponibilidade = Convert.ToBoolean(primeiroRegistro.Disponibilidade),
+                Quantidade = primeiroRegistro.QtdEstoque,
                 Categoria = primeiroRegistro.Categoria,
                 UrlImagens = rows.Select(r => (string)r.UrlImagem).Take(3).ToList()
             };

@@ -7,27 +7,45 @@ namespace Sonatto.Controllers
 {
     public class UsuarioController : Controller
     {
+        private readonly INivelAcessoAplicacao _nivelAcessoAplicacao;
         private readonly IUsuarioAplicacao _usuarioAplicacao;
         private readonly IProdutoAplicacao _produtoAplicacao;
         private readonly IVendaAplicacao _vendaAplicacao;
         private readonly IItemVendaAplicacao _itemVendaAplicacao;
-
+        private readonly IHistoricoAcaoAplicacao _historicoAcaoAplicacao;
         public UsuarioController(
+            INivelAcessoAplicacao nivelAcessoAplicacao,
             IUsuarioAplicacao usuarioAplicacao,
             IProdutoAplicacao produtoAplicacao,
             IVendaAplicacao vendaAplicacao,
-            IItemVendaAplicacao itemVendaAplicacao
+            IItemVendaAplicacao itemVendaAplicacao,
+            IHistoricoAcaoAplicacao historicoAplicacao
         )
         {
+            _nivelAcessoAplicacao = nivelAcessoAplicacao;
             _usuarioAplicacao = usuarioAplicacao;
             _produtoAplicacao = produtoAplicacao;
             _vendaAplicacao = vendaAplicacao;
+            _historicoAcaoAplicacao = historicoAplicacao;
             _itemVendaAplicacao = itemVendaAplicacao;
         }
 
         public IActionResult Index()
         {
             return View();
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> UsuarioNiveis(int id)
+        {
+            // retorna nome e níveis do usuário em JSON
+            var usuario = await _usuarioAplicacao.ObterPorIdAsync(id);
+            if (usuario == null) return Json(new { success = false, message = "Usuário não encontrado." });
+
+            var niveis = await _nivelAcessoAplicacao.GetNiveisPorUsuario(id);
+            var niveisList = niveis?.Select(n => n.NomeNivel).ToList() ?? new List<string>();
+
+            return Json(new { success = true, nome = usuario.Nome, niveis = niveisList, idUsuario = id });
         }
 
         public IActionResult Cadastrar()
@@ -64,19 +82,21 @@ namespace Sonatto.Controllers
                 return Json(new { authenticated = false });
             }
 
-            var niveis = (await _usuarioAplicacao.GetNiveisPorUsuarioAsync(idUsuario.Value)).ToList();
+            var niveis = (await _nivelAcessoAplicacao.GetNiveisPorUsuario(idUsuario.Value)).ToList();
 
-            if (niveis.Any(n => n != null && (n.Equals("Administrador", System.StringComparison.OrdinalIgnoreCase)
-                                   || n.Equals("Admin", System.StringComparison.OrdinalIgnoreCase))))
+            //verifica se o nível do usuario é igual a Administrador
+            if (niveis.Any(n => n.NomeNivel != null && (n.NomeNivel.Equals("Administrador", System.StringComparison.OrdinalIgnoreCase)
+                                   || n.NomeNivel.Equals("Admin", System.StringComparison.OrdinalIgnoreCase))))
             {
                 return Json(new { authenticated = true, redirect = Url.Action("Administrador", "Usuario") });
             }
-
+            //verifica se o usuário possui algum nível de acesso
             if (niveis.Any())
             {
                 return Json(new { authenticated = true, redirect = Url.Action("Funcionario", "Usuario") });
             }
 
+            //caso as verificações forem falsa, ent vai pro perfil
             return Json(new { authenticated = true, redirect = Url.Action("Perfil", "Usuario") });
         }
 
@@ -132,18 +152,25 @@ namespace Sonatto.Controllers
                 return RedirectToAction("Login", "Login");
 
             // carrega histórico de ações
-            var acoes = (await _usuarioAplicacao.GetAcoesPorUsuarioAsync(idUsuario.Value, 50)).ToList();
+            var acoes = await _historicoAcaoAplicacao.BuscarHistoricoAcaoFunc(idUsuario.Value);
             ViewBag.Acoes = acoes;
 
-            // carrega níveis para controle de permissões na view (opcional)
-            var niveis = (await _usuarioAplicacao.GetNiveisPorUsuarioAsync(idUsuario.Value)).ToList();
-            ViewBag.Niveis = niveis;
 
             return View();
         }
 
-        public IActionResult Administrador()
+        public async Task<IActionResult> Administrador()
         {
+            int? idUsuario = HttpContext.Session.GetInt32("UserId");
+            if (idUsuario == null)
+                return RedirectToAction("Login", "Login");
+
+            var usuario = await _usuarioAplicacao.ObterPorIdAsync(idUsuario.Value);
+            ViewBag.Usuario = usuario;
+
+            var historico = await _historicoAcaoAplicacao.BuscarHistoricoAcao();
+            ViewBag.Historico = historico;
+
             return View();
         }
 
@@ -155,17 +182,17 @@ namespace Sonatto.Controllers
             if (idUsuario == null)
                 return Json(new { allowed = false, redirect = Url.Action("Login", "Login") });
 
-            var niveis = (await _usuarioAplicacao.GetNiveisPorUsuarioAsync(idUsuario.Value)).ToList();
+            var niveis = (await _nivelAcessoAplicacao.GetNiveisPorUsuario(idUsuario.Value)).ToList();
             var niveisNorm = niveis
-                .Where(n => !string.IsNullOrWhiteSpace(n))
-                .Select(n => n.Trim())
+                .Where(n => !string.IsNullOrWhiteSpace(n.NomeNivel))
+                .Select(n => n.NomeNivel.Trim())
                 .ToList();
 
-            // detect admin
+            // verifica se é admin
             bool isAdmin = niveisNorm.Any(n => n.Equals("Administrador", System.StringComparison.OrdinalIgnoreCase)
                                                || n.Equals("Admin", System.StringComparison.OrdinalIgnoreCase));
 
-            // map action to required level
+            // mapa das ações
             int nivelRequerido = acao?.ToUpperInvariant() switch
             {
                 "ADICIONAR" => 1,
@@ -174,34 +201,40 @@ namespace Sonatto.Controllers
                 _ => 999
             };
 
-            // helper: try parse number from nivel string (handles 'Nivel 1', 'Nivel l', etc.)
-            int? ParseNivel(string s)
+            var niveisNum = new List<int>();
+            foreach (var s in niveisNorm)
             {
-                if (string.IsNullOrWhiteSpace(s)) return null;
-                s = s.Trim();
+                if (string.IsNullOrWhiteSpace(s)) continue;
+                var texto = s.Trim();
 
-                // try digits first
-                var m = Regex.Match(s, @"(\d+)");
-                if (m.Success && int.TryParse(m.Value, out var num)) return num;
+                // formato esperado: 'Nivel 2', 'Nivel 3' -> pega a parte após 'Nivel'
+                if (texto.StartsWith("Nivel", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    var parte = texto.Substring(5).Trim(); // remove 'nivel'
+                    if (int.TryParse(parte, out var n))
+                    {
+                        niveisNum.Add(n);
+                        continue;
+                    }
+                }
 
-                // common typo: letter 'l' or 'I' used instead of '1' (e.g., 'Nivel l')
-                if (Regex.IsMatch(s, @"nivel\s*[lLiI]$", RegexOptions.IgnoreCase)) return 1;
-
-                return null;
+                // se porventura já for apenas '1','2'...
+                if (int.TryParse(texto, out var v))
+                {
+                    niveisNum.Add(v);
+                }
             }
-
-            var niveisNum = niveisNorm.Select(ParseNivel).Where(x => x.HasValue).Select(x => x!.Value).ToList();
 
             bool possui = false;
             if (isAdmin) possui = true;
             else if (nivelRequerido != 999) possui = niveisNum.Contains(nivelRequerido);
 
-            // determine redirect URL for the action
-            string redirectUrl = acao?.ToUpperInvariant() switch
+            // redirecionamento para as telas referentes as ações
+            string? redirectUrl = acao?.ToUpperInvariant() switch
             {
                 "ADICIONAR" => Url.Action("Adicionar", "Produto"),
-                "EDITAR" => Url.Action("Catalogo", "Produto"),
-                "DELETAR" => Url.Action("Catalogo", "Produto"),
+                "EDITAR" => Url.Action("Editar", "Produto"),
+                "DELETAR" => Url.Action("CatalogoDeletar", "Produto"),
                 _ => Url.Action("Perfil", "Usuario")
             } ?? Url.Action("Perfil", "Usuario");
 
@@ -211,6 +244,52 @@ namespace Sonatto.Controllers
             }
 
             return Json(new { allowed = false, redirect = Url.Action("Perfil", "Usuario") });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GerenciarPerm()
+        {
+            ViewBag.UsuariosNiveis = await _nivelAcessoAplicacao.GetTodosNiveis();
+            // verifica sessão
+            int? idSess = HttpContext.Session.GetInt32("UserId");
+            if (idSess == null)
+                return RedirectToAction("Login", "Login");
+
+            // verifica se é administrador
+            var niveis = (await _nivelAcessoAplicacao.GetNiveisPorUsuario(idSess.Value)).ToList();
+            var isAdmin = niveis.Any(n => !string.IsNullOrWhiteSpace(n.NomeNivel) && (n.NomeNivel.Equals("Administrador", System.StringComparison.OrdinalIgnoreCase)));
+            if (!isAdmin)
+            {
+                TempData["Erro"] = "Acesso negado: somente administradores.";
+                return RedirectToAction("Perfil", "Usuario");
+            }
+
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GerenciarPerm(int idUsuario, string acao, int nivelId)
+        {
+            try
+            {
+                int? idSess = HttpContext.Session.GetInt32("UserId");
+                if (idSess == null)
+                    return Json(new { success = false, message = "Usuário não autenticado." });
+
+                await _nivelAcessoAplicacao.GerenciarNivel(idUsuario, acao, nivelId);
+
+                return Json(new { success = true, message = "Ação realizada com sucesso." });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return Json(new
+                {
+                    success = false,
+                    message = "Erro no servidor.",
+                    detail = ex.Message
+                });
+            }
         }
     }
 }

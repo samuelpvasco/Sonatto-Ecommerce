@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Models\AcaoUsuario.cs" />
+    <Compile Remove="Models\Estoque.cs" />
+    <Compile Remove="Models\ImagemProduto.cs" />
+    <Compile Remove="Models\NotaFiscal.cs" />
     <Compile Remove="Views\Shared\_FooterSlim.cshtml.cs" />
   </ItemGroup>
 

@@ -9,7 +9,5 @@
         public required string CPF { get; set; }
         public required string Endereco { get; set; }
         public required string Telefone { get; set; }
-
-        public List<NivelAcesso> Niveis { get; set; } = new();
     }
 }

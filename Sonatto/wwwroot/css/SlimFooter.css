@@ -1,4 +1,7 @@
-﻿.slimFooter {
+﻿/*Bruno Ace*/
+@import url('https://fonts.googleapis.com/css2?family=Bruno+Ace&display=swap');
+
+.slimFooter {
     background-color: rgba(60, 60, 67, 1);
     display: flex;
     justify-content: center;

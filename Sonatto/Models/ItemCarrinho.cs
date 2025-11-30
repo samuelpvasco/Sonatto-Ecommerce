@@ -8,8 +8,6 @@
         public int QtdItemCar { get; set; }
         public decimal PrecoUnidadeCar { get; set; }
         public decimal SubTotal { get; set; }
-
-        // propriedades auxiliares para exibição (não persistidas diretamente por Dapper)
         public string? ProdutoNome { get; set; }
         public string? ProdutoImagemUrl { get; set; }
     }

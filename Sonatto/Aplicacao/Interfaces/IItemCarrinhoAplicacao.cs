@@ -6,7 +6,7 @@ namespace Sonatto.Aplicacao.Interfaces
     {
         Task AlterarQuantidade(int idCarrinho, int idProduto, int qtd);
         Task ApagarItemCarrinho(int idItem);
-        Task<int> AdiconarItemCarrinho(int idUsuario, int idProduto, int qtd);
+        Task<int> AdicionarItemCarrinho(int idUsuario, int idProduto, int qtd);
         Task<IEnumerable<ItemCarrinho>> BuscarItensCarrinho(int idCarrinho);
     }
 }

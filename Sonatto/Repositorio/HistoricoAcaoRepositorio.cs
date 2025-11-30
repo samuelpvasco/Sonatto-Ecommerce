@@ -17,7 +17,7 @@ namespace Sonatto.Repositorio
         {
             using var conn = new MySqlConnection(_connectionString);
 
-            var sql = @"SELECT * FROM tbHistoricoAcao;";
+            var sql = @"SELECT * FROM vw_HistoricoAcao ORDER BY DataAcao DESC;";
 
             return await conn.QueryAsync<HistoricoAcao>(sql);
         }
@@ -26,7 +26,7 @@ namespace Sonatto.Repositorio
         {
             using var conn = new MySqlConnection(_connectionString);
 
-            var sql = @"SELECT * FROM tbHistoricoAcao WHERE IdUsuario = @IdUsuario;";
+            var sql = @"SELECT * FROM vw_HistoricoAcao WHERE IdUsuario = @IdUsuario ORDER BY DataAcao DESC;";
 
             return await conn.QueryAsync<HistoricoAcao>(sql, new { IdUsuario = idUsuario });
         }

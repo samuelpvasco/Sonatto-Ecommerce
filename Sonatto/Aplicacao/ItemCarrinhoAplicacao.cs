@@ -13,7 +13,7 @@ namespace Sonatto.Aplicacao
             _itemCarrinhoRepositorio = itemCarrinhoRepositorio;
         }
 
-        public async Task<int> AdiconarItemCarrinho(int idUsuario, int idProduto, int qtd)
+        public async Task<int> AdicionarItemCarrinho(int idUsuario, int idProduto, int qtd)
         {
             return await _itemCarrinhoRepositorio.AdiconarItemCarrinho(idUsuario, idProduto, qtd);
         }

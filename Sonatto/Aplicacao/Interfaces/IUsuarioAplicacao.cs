@@ -6,8 +6,6 @@ namespace Sonatto.Aplicacao.Interfaces
     {
         Task<int> CadastrarUsuarioAsync(Usuario usuario);
 
-        Task AdicionarNivelAsync(int idUsu, int nivelId);
-
         Task AlterarUsuarioAsync(Usuario usuario);
 
         Task<Usuario?> ObterPorIdAsync(int idUsuario);
@@ -16,10 +14,7 @@ namespace Sonatto.Aplicacao.Interfaces
 
         Task<Usuario?> ObterPorEmailSenhaAsync(string email, string senha);
 
-        // Novo: obter nomes dos níveis atribuídos ao usuário
-        Task<IEnumerable<string>> GetNiveisPorUsuarioAsync(int idUsuario);
 
-        // Novo: expor histórico de ações do usuário
-        Task<IEnumerable<AcaoUsuario>> GetAcoesPorUsuarioAsync(int idUsuario, int limite = 50);
+        
     }
 }

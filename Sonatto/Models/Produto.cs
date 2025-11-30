@@ -28,6 +28,8 @@ namespace Sonatto.Models
         [StringLength(100)]
         public required string Marca { get; set; }
 
+        public required int Quantidade { get; set; }
+
         [Required(ErrorMessage = "A avaliação é obrigatória.")]
         [Column(TypeName = "decimal(2,1)")]
         public required decimal Avaliacao { get; set; }

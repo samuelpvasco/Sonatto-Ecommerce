@@ -1,4 +1,5 @@
-﻿namespace Sonatto.Models
+﻿
+namespace Sonatto.Models
 {
     public class NivelAcesso
     {

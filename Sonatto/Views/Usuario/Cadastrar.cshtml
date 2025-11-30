@@ -33,12 +33,19 @@
 
                         <input type="text" class="input-form" name="nome" placeholder="Digite seu Nome" />
                         <input type="text" class="input-form" name="email" placeholder="Digite seu E-mail" />
-                        <input type="text" class="input-form" name="cpf" placeholder="Digite seu CPF" />
+
+                        <input type="text" class="input-form" id="cpf" maxLength="14" placeholder="Digite seu CPF" />
+                        <input type="hidden" id="cpfLimpo" name="cpf" />
+
                         <div class="linha-div"></div>
+
                         <input type="text" class="input-form" name="endereco" placeholder="Digite seu Endereço" />
-                        <input type="text" class="input-form" name="telefone" placeholder="Digite seu Telefone" />
+
+                        <input type="text" class="input-form" id="telefone" maxLength="15" placeholder="Digite seu Telefone" />
+                        <input type="hidden" id="telefoneLimpo" name="telefone" />
+
                         <input type="password" class="input-form" name="senha" placeholder="Digite uma Senha" />
-                        
+
                     </div>
 
                     <button type="submit" class="btn-entrar">Criar</button>
@@ -52,4 +59,32 @@
     </div>
 
     @Html.Partial("_FooterSlim")
+    <script>
+        const inputCPF = document.getElementById("cpf");
+        const inputTel = document.getElementById("telefone");
+
+        inputCPF.addEventListener("input", function () {
+            let v = this.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 3) v = v.replace(/(\d{3})(\d)/, "$1.$2");
+            if (v.length > 6) v = v.replace(/(\d{3})(\d)/, "$1.$2");
+            if (v.length > 9) v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            this.value = v;
+        });
+
+        inputTel.addEventListener("input", function () {
+            let v = this.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.slice(0, 11);
+            if (v.length > 2) v = v.replace(/(\d{2})(\d)/, "($1) $2");
+            if (v.length > 7) v = v.replace(/(\d{5})(\d)/, "$1-$2");
+            this.value = v;
+        });
+
+        const form = document.querySelector("form");
+
+        form.addEventListener("submit", function () {
+            document.getElementById("cpfLimpo").value = inputCPF.value.replace(/\D/g, "");
+            document.getElementById("telefoneLimpo").value = inputTel.value.replace(/\D/g, "");
+        });
+    </script>
 </body>

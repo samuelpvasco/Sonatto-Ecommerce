@@ -19,10 +19,15 @@ body {
 }
 
 html, body {
-    max-width: 100%;
+    max-width: auto;
     overflow-x: hidden;
 }
 
+.conteudo-page{
+    width:100%;
+    height:100%;
+    margin-top:-1%;
+}
 .breadcrumb {
     margin: 15px 0 0 65px;
     font-family: "Bruno Ace", monospace;
@@ -252,19 +257,21 @@ html, body {
 .modal{
     justify-content:center;
     align-items:center;
-    width:22%;
-    height: 50%;
+    width:100%;
+    z-index:100;
+    height: 100%;
     position:absolute;
-    display:none;
-    border-radius:15px;
-    padding:1%;
-    background-color:black;
+    display:flex;
+    pointer-events:none;
+    opacity:0;
+    transition:0.5s ease-in-out;
 }
 
 .modal-card{
-    width:80%;
-    height: 80%;
-    padding:10%;
+    width:20%;
+    height: 50%;
+    padding:2%;
+    border:solid 1px;
     align-items:center;
     background-color:white;
     border-radius:15px;
@@ -305,21 +312,24 @@ html, body {
     display:flex;
     align-items:center;
     gap:50px;
+    
     justify-content:end;
 }
 
 .btn-cancel {
-    height: 70%;
+    height: 40%;
     width: 50%;
     background-color: #837878;
     border: 1px solid;
-    border-radius:10px;
-    color:white;
+    border-radius: 10px;
+    font-family: "Bruno Ace";
+    color: white;
 }
 .btn-confirm {
-    height: 70%;
+    height: 40%;
     width: 50%;
     border: 1px solid;
+    font-family: "Bruno Ace";
     border-color: #060606;
     border-radius: 10px;
 }

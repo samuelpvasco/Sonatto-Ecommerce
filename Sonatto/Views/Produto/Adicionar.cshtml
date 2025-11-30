@@ -1,4 +1,4 @@
-﻿@model Sonatto.Models.Produto
+﻿@model Sonatto.Models.Produto;
 @{
     ViewData["Title"] = "Adicionar produto";
     Layout = null;
@@ -9,13 +9,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
-    <link rel="stylesheet" href="~/css/AddProd.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/AddProd.css" />
     <link href="~/imgs/Logos/Monografia.png" rel="shortcut icon" />
 </head>
 <body>
+
     @Html.Partial("_Header")
 
     <div class="conteudo-page">
+
         <div class="navDasPag">
             <a asp-area="" asp-controller="Home" asp-action="Index">Perfil ></a>
             <a asp-area="" asp-controller="Home" asp-action="Index">Ações ></a>
@@ -25,33 +27,56 @@
         <h1 class="titulo">Adicionar produto</h1>
 
         <div class="fundo">
-            @* Aréa dos inputs com as informações do produto *@
-            <form id="formAdicionar" asp-action="Adicionar" asp-controller="Produto" method="post" enctype="multipart/form-data">
+
+            @if (TempData["Erro"] != null)
+            {
+                <div class="alert alert-danger">@TempData["Erro"]</div>
+            }
+            @if (TempData["Sucesso"] != null)
+            {
+                <div class="alert alert-success">@TempData["Sucesso"]</div>
+            }
+
+            <form id="formAdicionar" class="caixa"
+                  asp-action="Adicionar"
+                  asp-controller="Produto"
+                  method="post"
+                  enctype="multipart/form-data">
+
+                @Html.AntiForgeryToken()
+
                 <div class="campos">
+
                     <div class="cCaixas">
                         <h4>Nome</h4>
                         <input asp-for="NomeProduto" type="text" placeholder="Digite o nome do produto" required />
                     </div>
+
                     <div class="cCaixas">
                         <h4>Marca</h4>
                         <input asp-for="Marca" type="text" placeholder="Digite a marca do produto" required />
                     </div>
+
                     <div class="cCaixas">
                         <h4>Preço unitário</h4>
                         <input asp-for="Preco" type="number" step="0.01" placeholder="Digite o preço do produto" required />
                     </div>
+
                     <div class="cCaixas">
-                        <h4>Avaliacao</h4>
+                        <h4>Avaliação</h4>
                         <input asp-for="Avaliacao" type="number" step="0.01" placeholder="Digite a avaliação do produto" required />
                     </div>
+
                     <div class="cCaixas">
                         <h4>Categoria</h4>
                         <input asp-for="Categoria" type="text" placeholder="Digite a categoria do produto" required />
                     </div>
+
                     <div class="cCaixas">
                         <h4>Quantidade em estoque</h4>
-                        <input type="number" name="qtdEstoque" placeholder="Digite a quantidade do produto" required />
+                        <input asp-for="Quantidade" type="number" placeholder="Digite a quantidade do produto" required />
                     </div>
+
                     <div class="cCaixas">
                         <h4>Descrição do produto</h4>
                         <textarea asp-for="Descricao" placeholder="Digite a descrição do produto"></textarea>
@@ -59,11 +84,12 @@
 
                     <div class="botoes">
                         <a asp-action="Index" asp-controller="Home" class="btnAddCan"><p>Cancelar</p></a>
-                        <button type="submit" class="btnAddCan"><p>Adicionar</p></button>
+                        <button type="submit" class="btnAddCan"><p id="submit-text">Adicionar</p></button>
                     </div>
+
                 </div>
 
-                @* Área das imagens do produto *@
+                <!-- Área de Imagens -->
                 <div class="campoImagens">
                     <h2>Arraste as imagens desejadas</h2>
 
@@ -75,7 +101,8 @@
                     </div>
 
                     <div class="imgsArrastadas" style="opacity:0; transition: opacity 0.5s ease;">
-                        <div class="imgsArrastadasCampo" id="campo1" style="display:none; opacity:0; transition: opacity 0.5s ease;">
+
+                        <div class="imgsArrastadasCampo" id="campo1" style="display:none; opacity:0;">
                             <div class="img-exemplo">
                                 <img id="img1" src="" alt="Imagem 1" />
                             </div>
@@ -83,50 +110,67 @@
                             <h3 class="aviso">Imagem de destaque. ATENÇÃO!</h3>
                             <input type="hidden" id="url1" name="imagens" />
                         </div>
-                        <div class="imgsArrastadasCampo" id="campo2" style="display:none; opacity:0; transition: opacity 0.5s ease;">
+
+                        <div class="imgsArrastadasCampo" id="campo2" style="display:none; opacity:0;">
                             <div class="img-exemplo">
                                 <img id="img2" src="" alt="Imagem 2" />
                             </div>
                             <h2>Imagem 2</h2>
                             <input type="hidden" id="url2" name="imagens" />
                         </div>
-                        <div class="imgsArrastadasCampo" id="campo3" style="display:none; opacity:0; transition: opacity 0.5s ease;">
+
+                        <div class="imgsArrastadasCampo" id="campo3" style="display:none; opacity:0;">
                             <div class="img-exemplo">
                                 <img id="img3" src="" alt="Imagem 3" />
                             </div>
                             <h2>Imagem 3</h2>
                             <input type="hidden" id="url3" name="imagens" />
                         </div>
+
                     </div>
+
                 </div>
+
             </form>
+
         </div>
 
-        @Html.Partial("_Footer")
+        @Html.Partial("_FooterSlim")
     </div>
 
+    <script src="~/js/appAlert.js"></script>
+
+    <!-- SCRIPT PRINCIPAL -->
     <script>
         const form = document.getElementById('formAdicionar');
         const campoArrastar = document.getElementById('campoArrastar');
+
         const imgs = [
             document.getElementById('img1'),
             document.getElementById('img2'),
             document.getElementById('img3')
         ];
+
         const urls = [
             document.getElementById('url1'),
             document.getElementById('url2'),
             document.getElementById('url3')
         ];
+
         const campos = [
             document.getElementById('campo1'),
             document.getElementById('campo2'),
             document.getElementById('campo3')
         ];
+
         let i = 0;
 
-        campoArrastar.addEventListener('dragover', (event) => {
-            event.preventDefault();
+        // contador de uploads ativos
+        let uploadsInProgress = 0;
+
+        // Dragover
+        campoArrastar.addEventListener('dragover', (e) => {
+            e.preventDefault();
             campoArrastar.classList.add('dragover');
         });
 
@@ -134,71 +178,99 @@
             campoArrastar.classList.remove('dragover');
         });
 
-        campoArrastar.addEventListener('drop', (event) => {
-            event.preventDefault();
+        // Soltar no campo
+        campoArrastar.addEventListener('drop', (e) => {
+            e.preventDefault();
             campoArrastar.classList.remove('dragover');
 
-            const siteImg = event.dataTransfer.getData('text/uri-list');
-            if (siteImg) {
-                addImage(siteImg);
-                return;
-            }
+            const siteImg = e.dataTransfer.getData('text/uri-list');
+            if (siteImg) return addImage(siteImg);
 
-            const files = event.dataTransfer.files;
-            for (let j = 0; j < files.length; j++) {
-                const file = files[j];
-                if (file.type.startsWith('image/')) { // Verifica se o objeto arrastado é uma imagem
+            for (let file of e.dataTransfer.files) {
+                if (file.type.startsWith('image/')) {
                     uploadFile(file);
                 }
             }
         });
 
+        // Envia a imagem para o servidor
         async function uploadFile(file) {
-            if (i >= 3) { alert('Você só pode adicionar até 3 imagens.'); return; }
+            if (i >= 3) return appAlert("Você só pode adicionar até 3 imagens.", 'Aviso');
+
+            uploadsInProgress++;
+            updateSubmitState();
+
             const fd = new FormData();
             fd.append('file', file);
 
             try {
                 const res = await fetch('/Produto/UploadImagem', { method: 'POST', body: fd });
                 const json = await res.json();
-                console.log('Upload response:', json);
-                if (!res.ok) { alert(json.error || 'Erro ao enviar imagem'); return; }
 
-                addImage(json.url);
+                if (!res.ok) return appAlert(json.error || "Erro ao enviar imagem", 'Erro');
+
+                // aceitamos either json.url ou json.name or json.file
+                const url = json.url || (json.name ? ('/temp_uploads/' + json.name) : null) || json.file;
+                if (!url) return appAlert('Resposta de upload inválida', 'Erro');
+
+                addImage(url);
+
             } catch (err) {
                 console.error(err);
-                alert('Erro ao enviar imagem');
+                appAlert("Erro ao enviar imagem", 'Erro');
+            } finally {
+                uploadsInProgress--;
+                updateSubmitState();
             }
         }
 
+        // Adiciona imagem na interface
         function addImage(url) {
-            if (i < 3) {
-                const container = document.querySelector('.imgsArrastadas');
-                const campo = campos[i];
+            if (i >= 3) return appAlert("Você só pode adicionar até 3 imagens.", 'Aviso');
 
-                if (i === 0) {
-                    container.style.opacity = '1';
-                }
+            const container = document.querySelector('.imgsArrastadas');
+            const campo = campos[i];
 
-                imgs[i].src = url;
-                urls[i].value = url;
+            if (i === 0) container.style.opacity = "1";
 
-                campo.style.display = 'flex';
-                setTimeout(() => campo.style.opacity = '1', 50);
+            imgs[i].src = url;
+            urls[i].value = url;
 
-                i++;
+            campo.style.display = "flex";
+            setTimeout(() => campo.style.opacity = "1", 10);
+
+            i++;
+        }
+
+        function updateSubmitState() {
+            const btn = form.querySelector('button[type="submit"]');
+            const submitText = document.getElementById('submit-text');
+            if (!btn) return;
+            if (uploadsInProgress > 0) {
+                btn.disabled = true;
+                if (submitText) submitText.textContent = 'Aguardando uploads...';
             } else {
-                alert("Você só pode adicionar até 3 imagens.");
+                btn.disabled = false;
+                if (submitText) submitText.textContent = 'Adicionar';
             }
         }
 
-        // ensure images are present before submit and log values for debugging
-        form.addEventListener('submit', (e) => {
-            const provided = urls.map(u => u.value).filter(v => v && v.length > 0);
-            console.log('Imagens enviadas:', provided);
-            // if you require at least one image, uncomment:
-            // if (provided.length === 0) { e.preventDefault(); alert('Adicione ao menos uma imagem.'); }
+        // Impede envio enquanto houver uploads em andamento
+        form.addEventListener('submit', (ev) => {
+            if (uploadsInProgress > 0) {
+                ev.preventDefault();
+                appAlert('Aguarde o término do upload das imagens antes de enviar o formulário.', 'Aviso');
+                return false;
+            }
+            // tudo ok — permite o envio
+        });
+
+        // Validação antes de enviar (mantida)
+        form.addEventListener('submit', () => {
+            const added = urls.filter(x => x.value).length;
+            console.log("Imagens enviadas:", added);
         });
     </script>
+
 </body>
 </html>

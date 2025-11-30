@@ -47,7 +47,6 @@
     border: 1px solid #000 ;
     border-radius: 60px;
     display: inline-flex;
-    -webkit-align-items: center;
     align-items: center;
 }
 

@@ -2,8 +2,8 @@
 {
     public class HistoricoAcao
     {
-        public int IdHistorico { get; set; }
-        public int IdUsuario { get; set; }
+        public string? Nome { get; set; }
+        public string? NomeNivel { get; set; }
         public string? Acao { get; set; }
         public DateTime DataAcao { get; set;}
     }

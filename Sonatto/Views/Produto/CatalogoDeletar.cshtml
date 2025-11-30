@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Sonatto.Models.Produto>
+﻿@model IEnumerable<Sonatto.Models.Produto>;
 @{
     Layout = null;
     ViewData["Title"] = "Deletar Produto - Seleção";
@@ -13,7 +13,10 @@
 </head>
 <body>
     @Html.Partial("_Header")
-
+    <div class="faixa">
+        <p>Escolha um produto abaixo para</p>
+        <p style="color:#B42121">Deletar</p>
+    </div>
     <div class="conteudo-page">
         
         <div class="menuLateral">
@@ -61,16 +64,39 @@
                 @{
                     var paginaAtual = ViewBag.PaginaAtual ?? 1;
                     var totalPaginas = ViewBag.TotalPaginas ?? 1;
+                    var search = ViewBag.Search as string ?? "";
+                    var categoria = ViewBag.Categoria as string ?? "";
+                    var minPreco = ViewBag.MinPreco as decimal?;
+                    var maxPreco = ViewBag.MaxPreco as decimal?;
                 }
-                @if (paginaAtual > 1)
-                {
-                    <a asp-action="CatalogoDeletar" asp-route-pagina="@(paginaAtual - 1)">‹ previous</a>
-                }
-                <span> Página @paginaAtual de @totalPaginas </span>
-                @if (paginaAtual < totalPaginas)
-                {
-                    <a asp-action="CatalogoDeletar" asp-route-pagina="@(paginaAtual + 1)">next ›</a>
-                }
+
+                <a href="@Url.Action("CatalogoDeletar", new { pagina = paginaAtual - 1, search = search, categoria = categoria, minPreco = minPreco, maxPreco = maxPreco })"
+                   class="exibicaoSwitchAnterior"
+                   data-page="@(paginaAtual - 1)"
+                   @(paginaAtual <= 1 ? "aria-disabled=\"true\"" : "")>
+                    <img src="~/imgs/setaEsquerda.png" class="seta" /> Ant.
+                </a>
+
+                <div class="exibicaoSwitchNumeros">
+                    @if (totalPaginas > 1)
+                    {
+                        for (int i = 1; i <= totalPaginas; i++)
+                        {
+                            <a href="@Url.Action("CatalogoDeletar", new { pagina = i, search = search, categoria = categoria, minPreco = minPreco, maxPreco = maxPreco })"
+                               data-page="@i"
+                               class="@(i == paginaAtual ? "ativo" : "")">
+                                @i
+                            </a>
+                        }   
+                    }
+                </div>
+
+                <a href="@Url.Action("CatalogoDeletar", new { pagina = paginaAtual + 1, search = search, categoria = categoria, minPreco = minPreco, maxPreco = maxPreco })"
+                   class="exibicaoSwitchProximo"
+                   data-page="@(paginaAtual + 1)"
+                   @(paginaAtual >= totalPaginas ? "aria-disabled=\"true\"" : "")>
+                    Próx. <img src="~/imgs/setaDireita.png" class="seta" />
+                </a>
             </div>
         </div>
     </div>
@@ -98,7 +124,7 @@
         </div>
     </div>
 
-    @Html.Partial("_Footer")
+    @Html.Partial("_FooterSlim")
 
     <script>
         (function () {

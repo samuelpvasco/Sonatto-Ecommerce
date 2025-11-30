@@ -1,0 +1,179 @@
+﻿/*Bruno Ace*/
+@import url('https://fonts.googleapis.com/css2?family=Bruno+Ace&display=swap');
+
+
+body{
+    margin:0;
+    padding: 0;
+
+}
+
+.conteudo-page{
+    height:100%;
+    width:100%;
+    margin:0;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-evenly;
+}
+
+.navDasPag {
+    margin-top: 7%;
+    margin-left: 4%;
+    margin-bottom: 1%;
+    font-family: "Bruno Ace", monospace;
+    font-size: 24px;
+}
+
+    .navDasPag a {
+        text-decoration: none;
+        color: gray;
+    }
+
+.faixa {
+    width: 95%;
+    height: auto%;
+    background-color: #D9D9D9;
+    opacity: 0.65;
+    display: flex;
+    padding-left: 5%;
+    gap: 9px;
+    font-size: 22px;
+    font-weight: bolder;
+    color:black;
+    font-family: "Bruno Ace"
+}
+
+.faixa-text2 {
+    color: #77A3C2;
+}
+
+
+
+.container {
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    margin-bottom:2%;
+    margin-top:2%;
+}
+
+.usuarios-cards {
+    box-shadow: 0 -10px 10px -10px rgba(0,0,0,0.5), 0 10px 10px -10px rgba(0,0,0,0.5);
+    width: 30%;
+    height: 500px;
+    gap: 5%;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.usuario-card {
+    cursor:pointer;
+    width: 95%;
+    height: auto;
+    display: flex;
+    flex-shrink: 0;
+    border-radius: 10px;
+    border: solid 2px black;
+    font-family: "Bruno Ace";
+    align-items: center;
+}
+
+.img-area{
+    width:30%;
+    border-radius:5px 0 0 5px;
+    background-color:black;
+    height:100%;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+}
+.permissao-text{
+    font-size:20px;
+    font-weight:590;
+    color:black !important;
+    margin-bottom:10px !important;
+}
+.text-area {
+    width:40%;
+    padding:15px;
+    display: flex;
+    flex-direction: column;
+}
+
+    .text-area p {
+        margin-top:0px;
+        flex-direction:row;
+        color: #FF0000;
+
+    }
+    .usu-nome{
+        font-size:20px;
+        width:auto;
+        color: black !important;    
+        font-weight: 700;
+        margin-bottom:15px !important;
+    }
+
+.alterar-card{
+    width:35%;
+    height:auto;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    border-radius:10px;
+    font-family:"Bruno Ace";
+    border: 1px solid #77A3C2;
+}
+
+.faixa-card{
+    margin-top:5%;
+    width:100%;
+    opacity:0.65;
+    background-color:#D9D9D9;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    font-size:20px;
+}
+
+.permissoes{
+    width:100%;
+    height:auto;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:5%;
+}
+.permissao {
+    width: 80%;
+    align-items:center;
+    gap: 3%;
+    display:flex;
+}
+.nivel-title{
+    margin-bottom:-5px;
+    color:#FF0000;
+}
+.text-permissao{
+    display:flex;
+    text-align:justify;
+    flex-direction:column;
+    gap:0px;
+}
+.btn-confirm{
+    margin-top:7%;
+    cursor:pointer;
+    border-radius:10px;
+    border:1px solid;
+    width:80%;
+    height:50px;
+    background-color:black;
+    color:white;
+    font-family:"Bruno Ace";
+}

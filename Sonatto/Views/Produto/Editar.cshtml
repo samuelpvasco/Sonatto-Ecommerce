@@ -3,17 +3,21 @@
     Layout = null;
     ViewData["Title"] = "Editar produto";
 }
+
+         
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
-    <link rel="stylesheet" href="~/css/AddProd.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/Produto.css" asp-append-version="true" />
-</head>
+    <link rel="stylesheet" href="~/css/AddProd.css" />
+    <link rel="shortcut icon" href="~/imgs/Logos/Monografia.png" />
+</head> 
 <body>
     @Html.Partial("_Header")
+
+    
 
     <div class="conteudo-page">
         <div class="navDasPag">
@@ -25,7 +29,8 @@
         <h1 class="titulo">Editar produto</h1>
 
         <div class="fundo">
-            <form asp-action="Editar" asp-controller="Produto" method="post" enctype="multipart/form-data">
+            <form asp-action="Editar" asp-controller="Produto" method="post" id="formAdicionar" enctype="multipart/form-data" class="caixa">
+                @Html.AntiForgeryToken()
                 <input asp-for="IdProduto" type="hidden" />
 
                 <div class="campos">
@@ -51,7 +56,7 @@
                     </div>
                     <div class="cCaixas">
                         <h4>Quantidade em estoque</h4>
-                        <input type="number" name="qtdEstoque" value="0" placeholder="Digite a quantidade do produto" required />
+                        <input asp-for="Quantidade" type="number" min="0" placeholder="Digite a quantidade do produto" required />
                     </div>
                     <div class="cCaixas">
                         <h4>Descrição do produto</h4>
@@ -64,34 +69,224 @@
                     </div>
                 </div>
 
+
+                <!-- Área de Imagens -->
                 <div class="campoImagens">
                     <h2>Arraste as imagens desejadas</h2>
 
-                    <div class="arrastarImgs" id="dropZone">
+                    <div class="arrastarImgs" id="campoArrastar">
                         <div class="arrastarImgsDentro">
                             <img src="~/imgs/Icones/img-icone.png" alt="Ícone imagem" />
                             <p>Arraste até 3 imagens</p>
                         </div>
                     </div>
 
-                    <div class="imgsArrastadas" style="display:flex; gap:12px; margin-top:12px;">
-                        @for (int i = 0; i < 3; i++)
-                        {
-                            var url = Model?.UrlImagens?.ElementAtOrDefault(i) ?? "";
-                            <div class="imgsArrastadasCampo" id="campo@(i+1)" style="display:@(string.IsNullOrEmpty(url) ? "none" : "flex"); flex-direction:column; align-items:center;">
-                                <div class="img-exemplo" style="width:120px; height:120px; border:1px solid #e6e6e6; display:flex; align-items:center; justify-content:center; border-radius:6px; overflow:hidden;">
-                                    <img id="img@(i+1)" src="@(url)" style="width:100%; height:100%; object-fit:cover;" alt="Imagem @(i+1)" />
-                                </div>
-                                <h2 style="font-size:13px;">Imagem @(i+1)</h2>
-                                <input type="hidden" id="url@(i+1)" name="imagens" value="@(url)" />
+                    <div class="imgsArrastadas" style="opacity:0; transition: opacity 0.5s ease;">
+
+                        <div class="imgsArrastadasCampo" id="campo1" style="display:none; opacity:0;">
+                            <div class="img-exemplo">
+                                <img id="img1" src="" alt="Imagem 1" />
                             </div>
-                        }
+                            <h2>Imagem 1</h2>
+                            <h3 class="aviso">Imagem de destaque. ATENÇÃO!</h3>
+                            <input type="hidden" id="url1" name="imagens" />
+                            <button type="button" class="btn-remover" onclick="removerImagemServer(0)">X</button>
+                        </div>
+
+                        <div class="imgsArrastadasCampo" id="campo2" style="display:none; opacity:0;">
+                            <div class="img-exemplo">
+                                <img id="img2" src="" alt="Imagem 2" />
+                            </div>
+                            <h2>Imagem 2</h2>
+                            <input type="hidden" id="url2" name="imagens" />
+                            <button type="button" class="btn-remover" onclick="removerImagemServer(1)">X</button>
+                        </div>
+
+                        <div class="imgsArrastadasCampo" id="campo3" style="display:none; opacity:0;">
+                            <div class="img-exemplo">
+                                <img id="img3" src="" alt="Imagem 3" />
+                            </div>
+                            <h2>Imagem 3</h2>
+                            <input type="hidden" id="url3" name="imagens" />
+                            <button type="button" class="btn-remover" onclick="removerImagemServer(2)">X</button>
+                        </div>
+
                     </div>
+
                 </div>
             </form>
         </div>
 
-        @Html.Partial("_Footer")
+        @Html.Partial("_FooterSlim")
+
     </div>
+    <script>
+        (function () {
+            const form = document.getElementById('formAdicionar');
+            const campoArrastar = document.getElementById('campoArrastar');
+
+            const imgs = [document.getElementById('img1'), document.getElementById('img2'), document.getElementById('img3')];
+            const urls = [document.getElementById('url1'), document.getElementById('url2'), document.getElementById('url3')];
+            const campos = [document.getElementById('campo1'), document.getElementById('campo2'), document.getElementById('campo3')];
+
+            let uploadsInProgress = 0;
+
+            function updateSubmitState() {
+                const btn = form.querySelector('button[type="submit"]');
+                const submitText = document.getElementById('submit-text');
+                if (!btn) return;
+                if (uploadsInProgress > 0) {
+                    btn.disabled = true;
+                    if (submitText) submitText.textContent = 'Aguardando uploads...';
+                } else {
+                    btn.disabled = false;
+                    if (submitText) submitText.textContent = 'Salvar';
+                }
+            }
+
+            try {
+                const existing = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model?.UrlImagens ?? new List<string>()));
+                console.log('existing images (from model):', existing);
+                const container = document.querySelector('.imgsArrastadas');
+                let shown = 0;
+                (existing || []).slice(0,3).forEach((url, idx) => {
+                    if (!url) return;
+                    if (!imgs[idx] || !urls[idx] || !campos[idx]) return;
+                    imgs[idx].src = url;
+                    urls[idx].value = url;
+                    campos[idx].style.display = 'flex';
+                    setTimeout(() => campos[idx].style.opacity = '1', 10);
+                    shown++;
+                });
+                if (shown > 0 && container) {
+                    container.style.opacity = '1';
+                }
+                reorganizar();
+            } catch (e) {
+                console.error('Erro ao inicializar imagens existentes', e);
+            }
+
+            const filePicker = document.createElement('input');
+            filePicker.type = 'file'; filePicker.accept = 'image/*'; filePicker.style.display = 'none'; document.body.appendChild(filePicker);
+            filePicker.addEventListener('change', () => { const f = filePicker.files[0]; if (f) handleFileAdd(f); });
+            if (campoArrastar) campoArrastar.addEventListener('click', () => filePicker.click());
+
+            if (campoArrastar) {
+                campoArrastar.addEventListener('dragenter', e => { e.preventDefault(); campoArrastar.classList.add('dragover'); });
+                campoArrastar.addEventListener('dragover', e => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; campoArrastar.classList.add('dragover'); });
+                campoArrastar.addEventListener('dragleave', () => campoArrastar.classList.remove('dragover'));
+                campoArrastar.addEventListener('drop', (e) => {
+                    e.preventDefault(); campoArrastar.classList.remove('dragover');
+                    const items = e.dataTransfer.items;
+                    if (items && items.length) {
+                        for (let k = 0; k < items.length; k++) {
+                            const it = items[k];
+                            if (it.kind === 'file') {
+                                const f = it.getAsFile();
+                                if (f && f.type && f.type.startsWith('image/')) handleFileAdd(f);
+                            }
+                        }
+                        return;
+                    }
+                    const files = e.dataTransfer.files || [];
+                    for (let j = 0; j < files.length; j++) {
+                        const f = files[j];
+                        if (f && f.type && f.type.startsWith('image/')) handleFileAdd(f);
+                    }
+                });
+            }
+
+            function previewFile(file, index) {
+                try {
+                    const reader = new FileReader();
+                    reader.onload = function (ev) {
+                        const dataUrl = ev.target.result;
+                        if (imgs[index]) imgs[index].src = dataUrl;
+                        if (campos[index]) { campos[index].style.display = 'flex'; setTimeout(() => campos[index].style.opacity = '1', 10); }
+                    };
+                    reader.readAsDataURL(file);
+                } catch (e) {
+                    console.error('Preview error', e);
+                }
+            }
+
+            async function uploadFile(file, index = null) {
+                if (index === null) index = urls.findIndex(u => !u.value);
+                if (index < 0) { alert('Você só pode adicionar até 3 imagens.', 'Aviso'); return; }
+
+                uploadsInProgress++; updateSubmitState();
+                const fd = new FormData(); fd.append('file', file);
+                try {
+                    const res = await fetch('/Produto/UploadImagem', { method: 'POST', body: fd });
+                    const json = await res.json();
+                    if (!res.ok) { alert(json?.error || 'Erro no upload', 'Erro'); return; }
+                    const url = json.url || json.file || json.name;
+                    if (!url) { alert('Resposta de upload inválida', 'Erro'); return; }
+
+                    if (imgs[index]) imgs[index].src = url;
+                    if (urls[index]) urls[index].value = url;
+                    if (campos[index]) { campos[index].style.display = 'flex'; setTimeout(() => campos[index].style.opacity = '1', 10); }
+                } catch (err) { console.error(err); appAlert('Erro ao enviar imagem', 'Erro'); }
+                finally { uploadsInProgress--; updateSubmitState(); }
+            }
+
+            function handleFileAdd(file) {
+                let index = urls.findIndex(u => !u.value);
+                if (index < 0) index = urls.findIndex(u => u && u.value === '');
+                if (index < 0) { alert('Você só pode adicionar até 3 imagens.', 'Aviso'); return; }
+                previewFile(file, index);
+                uploadFile(file, index);
+            }
+
+            imgs.forEach((imgEl, idx) => {
+                if (!imgEl) return;
+                imgEl.style.cursor = 'pointer';
+                imgEl.addEventListener('click', () => {
+                    const input = document.createElement('input'); input.type = 'file'; input.accept = 'image/*';
+                    input.onchange = () => { const f = input.files[0]; if (f) uploadFile(f, idx); };
+                    input.click();
+                });
+            });
+
+            window.removerImagem = function (ind) {
+                if (urls[ind]) urls[ind].value = '';
+                if (imgs[ind]) imgs[ind].src = '';
+                if (campos[ind]) { campos[ind].style.opacity = '0'; setTimeout(() => campos[ind].style.display = 'none', 250); }
+                reorganizar();
+            };
+
+            window.removerImagemServer = function (ind) {
+                const url = urls[ind] ? urls[ind].value : '';
+                if (!url) { removerImagem(ind); return; }
+                const idProduto = document.querySelector('input[name="IdProduto"]')?.value || '@(Model?.IdProduto ?? 0)';
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                const body = `idProduto=${encodeURIComponent(idProduto)}&url=${encodeURIComponent(url)}&__RequestVerificationToken=${encodeURIComponent(token)}`;
+
+                fetch('@Url.Action("RemoverImagemAjax","Produto")', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+                    body
+                }).then(r => r.json()).then(json => {
+                    if (!json || !json.success) { appAlert(json?.message || 'Erro ao remover imagem', 'Erro'); return; }
+                    removerImagem(ind);
+                }).catch(err => { console.error(err); appAlert('Erro ao remover imagem', 'Erro'); });
+            };
+
+            function reorganizar() {
+                const values = urls.map(u => u ? u.value : '').filter(v => v);
+                urls.forEach(u => { if (u) u.value = ''; });
+                imgs.forEach(img => { if (img) img.src = ''; });
+                campos.forEach(c => { if (c) { c.style.display = 'none'; c.style.opacity = '0'; } });
+                values.forEach((v, i) => { if (imgs[i]) imgs[i].src = v; if (urls[i]) urls[i].value = v; if (campos[i]) { campos[i].style.display = 'flex'; setTimeout(() => campos[i].style.opacity = '1', 10); } });
+            }
+
+            if (form) form.addEventListener('submit', (ev) => {
+                if (uploadsInProgress > 0) { ev.preventDefault(); appAlert('Aguarde o término do upload das imagens antes de enviar o formulário.', 'Aviso'); return false; }
+            });
+
+        })();
+    </script>
+   
+
 </body>
 </html>

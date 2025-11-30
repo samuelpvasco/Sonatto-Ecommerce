@@ -16,15 +16,15 @@
 <body>
 
     @Html.Partial("_Header")
+    
+   <div class="faixa">
+        <p>Escolha um produto abaixo para</p>
+        <p style="color:#1327A9">Editar</p>
+   </div>
 
     <div class="conteudo-page">
-        <!-- existing catalog markup (unchanged) -->
+
         <div class="menuLateral">
-            <div class="navDasPag">
-                <a asp-controller="Home" asp-action="Index">Home ></a>
-                <a asp-controller="Usuario" asp-action="Funcionario" style="color: black;">Ações></a>
-                <a style="color: black; cursor:pointer;">Editar</a>
-            </div>
             <div class="menuLateralFiltros">
                 <div class="menuLateralFiltrosTitulo">
                     <p>Filtros</p>
@@ -32,16 +32,16 @@
                 </div>
 
                 <div class="menuLateralFiltrosCategoria">
-                    <a asp-controller="Produto" asp-action="Catalogo" asp-route-categoria="Sopro" asp-route-search="@ViewBag.Search" class="categoria-btn" data-cat="Sopro">Sopro</a>
-                    <a asp-controller="Produto" asp-action="Catalogo" asp-route-categoria="Percussão" asp-route-search="@ViewBag.Search" class="categoria-btn" data-cat="Percussão">Percussão</a>
-                    <a asp-controller="Produto" asp-action="Catalogo" asp-route-categoria="Cordas" asp-route-search="@ViewBag.Search" class="categoria-btn" data-cat="Cordas">Cordas</a>
-                    <a asp-controller="Produto" asp-action="Catalogo" asp-route-categoria="Teclas" asp-route-search="@ViewBag.Search" class="categoria-btn" data-cat="Teclas">Teclas</a>
+                    <a asp-controller="Produto" asp-action="CatalogoEditar" asp-route-categoria="Sopro" asp-route-search="@ViewBag.Search" class="categoria-btn" data-cat="Sopro">Sopro</a>
+                    <a asp-controller="Produto" asp-action="CatalogoEditar" asp-route-categoria="Percussão" asp-route-search="@ViewBag.Search" class="categoria-btn" data-cat="Percussão">Percussão</a>
+                    <a asp-controller="Produto" asp-action="CatalogoEditar" asp-route-categoria="Cordas" asp-route-search="@ViewBag.Search" class="categoria-btn" data-cat="Cordas">Cordas</a>
+                    <a asp-controller="Produto" asp-action="CatalogoEditar" asp-route-categoria="Teclas" asp-route-search="@ViewBag.Search" class="categoria-btn" data-cat="Teclas">Teclas</a>
                 </div>
 
                 <div class="menuLateralFiltrosPrecos">
                     <p>Preços</p>
                     <div class="slider-container">
-                        <form asp-controller="Produto" asp-action="Catalogo" method="get" class="form-inputs">
+                        <form asp-controller="Produto" asp-action="CatalogoEditar" method="get" class="form-inputs">
                             <input type="number" step="0.01" class="valor-input" id="valor-min" name="minPreco" placeholder="Val. Min" value="@(ViewBag.MinPreco?.ToString() ?? "")" />
                             <input type="number" step="0.01" class="valor-input" id="valor-max" name="maxPreco" placeholder="Val. Máx" value="@(ViewBag.MaxPreco?.ToString() ?? "")" />
                             <button type="submit" class="menuLateralFiltrosAplicar">Aplicar</button>
@@ -55,16 +55,11 @@
         <!-- ÁREA DOS PRODUTOS -->
         <div class="exibicao">
 
-            <div class="exibicaoFilto">
-                <p><span style="color: gray;">Filtro:</span> Maior relevância</p>
-            </div>
-
             <!-- LISTA DE PRODUTOS -->
             <div class="exibicaoGrid" id="listaProdutos">
                 @Html.Partial("_CardsProdutosEditar", Model)
             </div>
 
-            <!-- PAGINAÇÃO: renderiza somente os links iniciais (sem duplicar a lista) -->
             <div id="pagination" class="exibicaoSwitch">
                 @{
                     var paginaAtual = ViewBag.PaginaAtual ?? 1;
@@ -75,7 +70,7 @@
                     var maxPreco = ViewBag.MaxPreco as decimal?;
                 }
 
-                <a href="@Url.Action("Catalogo", new { pagina = paginaAtual - 1, search = search, categoria = categoria, minPreco = minPreco, maxPreco = maxPreco })"
+                <a href="@Url.Action("CatalogoEditar", new { pagina = paginaAtual - 1, search = search, categoria = categoria, minPreco = minPreco, maxPreco = maxPreco })"
                    class="exibicaoSwitchAnterior"
                    data-page="@(paginaAtual - 1)"
                    @(paginaAtual <= 1 ? "aria-disabled=\"true\"" : "")>
@@ -87,7 +82,7 @@
                     {
                         for (int i = 1; i <= totalPaginas; i++)
                         {
-                            <a href="@Url.Action("Catalogo", new { pagina = i, search = search, categoria = categoria, minPreco = minPreco, maxPreco = maxPreco })"
+                            <a href="@Url.Action("CatalogoEditar", new { pagina = i, search = search, categoria = categoria, minPreco = minPreco, maxPreco = maxPreco })"
                                data-page="@i"
                                class="@(i == paginaAtual ? "ativo" : "")">
                                 @i
@@ -96,7 +91,7 @@
                     }
                 </div>
 
-                <a href="@Url.Action("Catalogo", new { pagina = paginaAtual + 1, search = search, categoria = categoria, minPreco = minPreco, maxPreco = maxPreco })"
+                <a href="@Url.Action("CatalogoEditar", new { pagina = paginaAtual + 1, search = search, categoria = categoria, minPreco = minPreco, maxPreco = maxPreco })"
                    class="exibicaoSwitchProximo"
                    data-page="@(paginaAtual + 1)"
                    @(paginaAtual >= totalPaginas ? "aria-disabled=\"true\"" : "")>
@@ -123,9 +118,164 @@
             </div>
         </div>
     </div>
+    @Html.Partial("_FooterSlim")
 
-    @Html.Partial("_Footer")
+    <script>
+        (function () {
+            const input = document.getElementById("HeaderBusca");
+            const lista = document.getElementById("listaProdutos");
+            const pagination = document.getElementById("pagination");
+            const categoriaBtns = document.querySelectorAll(".categoria-btn");
+            const inputMin = document.getElementById('valor-min');
+            const inputMax = document.getElementById('valor-max');
 
+            let debounceTimer = null;
+            let controller = null;
+
+            function aplicarEstrelas() {
+                const cards = document.querySelectorAll('.exibicaoCard');
+                cards.forEach(card => {
+                    const raw = card.getAttribute('data-avaliacao') || "0";
+                    const rating = parseFloat(raw.toString().replace(',', '.')) || 0;
+                    const stars = card.querySelectorAll('.star');
+                    stars.forEach((star, index) => {
+                        const starValue = index + 1;
+                        star.classList.remove('filled', 'half');
+                        if (rating >= starValue) {
+                            star.classList.add('filled');
+                        } else if (rating >= starValue - 0.5) {
+                            star.classList.add('half');
+                        }
+                    });
+                });
+            }
+
+            async function fetchAndReplace(search = "", page = 1, categoria = "", min = "", max = "") {
+                if (!lista) return;
+
+                if (controller) controller.abort();
+                controller = new AbortController();
+                const signal = controller.signal;
+
+                const url = `/Produto/BuscarProdutos?search=${encodeURIComponent(search)}&pagina=${encodeURIComponent(page)}&categoria=${encodeURIComponent(categoria)}&minPreco=${encodeURIComponent(min)}&maxPreco=${encodeURIComponent(max)}`;
+
+                try {
+                    const res = await fetch(url, { signal });
+                    if (!res.ok) throw new Error('Erro na resposta');
+                    const html = await res.text();
+
+                    const temp = document.createElement('div');
+                    temp.innerHTML = html;
+
+                    const novaLista = temp.querySelector('#listaProdutosFragment');
+                    const novaPagination = temp.querySelector('#paginationFragment');
+
+                    if (novaLista) {
+                        lista.innerHTML = novaLista.innerHTML;
+                    } else {
+                        lista.innerHTML = html;
+                    }
+
+                    if (novaPagination && pagination) {
+                        pagination.innerHTML = novaPagination.innerHTML;
+                    }
+
+                    aplicarEstrelas();
+
+                    const query = new URLSearchParams(window.location.search);
+                    query.set('search', search || "");
+                    // use 'pagina' consistently with server-side links
+                    query.set('pagina', page);
+                    if (categoria) query.set('categoria', categoria); else query.delete('categoria');
+                    if (min) query.set('minPreco', min); else query.delete('minPreco');
+                    if (max) query.set('maxPreco', max); else query.delete('maxPreco');
+                    history.replaceState(null, '', `${window.location.pathname}?${query.toString()}`);
+
+                } catch (err) {
+                    if (err.name === 'AbortError') return;
+                    console.error('Erro ao buscar produtos:', err);
+                }
+            }
+
+            function debounceFetch(search, page, categoria, min, max) {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(() => fetchAndReplace(search, page, categoria, min, max), 250);
+            }
+
+            if (input) {
+                let composing = false;
+                input.addEventListener('compositionstart', () => composing = true);
+                input.addEventListener('compositionend', () => composing = false);
+
+                input.addEventListener('input', function (e) {
+                    if (composing) return;
+                    const val = e.target.value.trim();
+                    if (!window.location.pathname.toLowerCase().includes("/produto/catalogo")) {
+                        clearTimeout(debounceTimer);
+                        debounceTimer = setTimeout(() => {
+                            window.location.href = `/Produto/Catalogo?search=${encodeURIComponent(val)}`;
+                        }, 200);
+                        return;
+                    }
+
+                    debounceFetch(val, 1, '');
+                });
+            }
+
+            categoriaBtns.forEach(btn => {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    // parse category from href to support server-generated links
+                    let cat = "";
+                    try {
+                        const url = new URL(btn.href, window.location.origin);
+                        cat = url.searchParams.get('categoria') || "";
+                    } catch (err) {
+                        cat = btn.getAttribute('data-cat') || "";
+                    }
+                    const search = input?.value?.trim() || "";
+                    debounceFetch(search, 1, cat);
+                });
+            });
+
+            document.addEventListener('click', function (e) {
+                const a = e.target.closest('a[data-page]');
+                if (!a) return;
+
+                if (a.getAttribute('aria-disabled') === 'true') {
+                    e.preventDefault();
+                    return;
+                }
+                e.preventDefault();
+                const page = parseInt(a.getAttribute('data-page')) || 1;
+                const params = new URLSearchParams(window.location.search);
+                const search = input?.value?.trim() || params.get('search') || "";
+                const categoria = params.get('categoria') || "";
+                const min = inputMin?.value?.trim() || params.get('minPreco') || "";
+                const max = inputMax?.value?.trim() || params.get('maxPreco') || "";
+                fetchAndReplace(search, page, categoria, min, max);
+
+                const listaTop = lista?.getBoundingClientRect().top;
+                if (listaTop !== undefined) window.scrollTo({ top: window.scrollY + (listaTop - 20), behavior: 'smooth' });
+            });
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const params = new URLSearchParams(window.location.search);
+                const searchParam = params.get('search') || (input?.value || "");
+                // server uses 'pagina'
+                const pageParam = parseInt(params.get('pagina')) || 1;
+                const categoriaParam = params.get('categoria') || "";
+                const minParam = params.get('minPreco') || "";
+                const maxParam = params.get('maxPreco') || "";
+
+                if (inputMin && minParam) inputMin.value = minParam;
+                if (inputMax && maxParam) inputMax.value = maxParam;
+
+                aplicarEstrelas();
+            });
+
+        })();
+    </script>
     <script>
         (function () {
             const modalOverlay = document.getElementById('confirmModal');
@@ -151,7 +301,6 @@
                 modalOverlay.setAttribute('aria-hidden', 'true');
             }
 
-            // Attach to card anchors with .confirm-edit
             document.querySelectorAll('.confirm-edit').forEach(a => {
                 a.addEventListener('click', function (e) {
                     e.preventDefault();
@@ -162,22 +311,18 @@
                 });
             });
 
-            // cancel -> close
             btnCancel.addEventListener('click', closeModal);
 
-            // edit -> navigate to href
             btnEdit.addEventListener('click', function () {
                 if (targetHref) {
                     window.location.href = targetHref;
                 }
             });
 
-            // close when clicking overlay outside dialog
             modalOverlay.addEventListener('click', function (e) {
                 if (e.target === modalOverlay) closeModal();
             });
 
-            // ESC key closes modal
             document.addEventListener('keydown', function (e) {
                 if (e.key === 'Escape' && modalOverlay.classList.contains('open')) {
                     closeModal();

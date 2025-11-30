@@ -2,6 +2,7 @@
 @{
     Layout = null;
     var usuarioLogado = ViewBag.Usuario as Usuario;
+    var historico = ViewBag.Acoes as IEnumerable<HistoricoAcao>;
 }
 
 <!DOCTYPE html>
@@ -67,17 +68,17 @@
         <div class="historicoDeAcoes">
             <p>Seu histórico de ações</p>
             <div class="historico">
-                @if (ViewBag.Acoes is IEnumerable<Sonatto.Models.AcaoUsuario> acoes && acoes.Any())
+                @if (historico != null)
                 {
-                    foreach (var ac in acoes)
+                    foreach (var ac in historico)
                     {
                         <div class="acaoCard">
                             <img src="~/imgs/icones/Engranagem.svg" />
                             <div class="dadosAcao">
-                                <h1>@(ac.NomeAcao)</h1>
+                                <h1>@ac.Acao</h1>
                                 <div class="subDadosAcao">
                                     <p>Data: @ac.DataAcao.ToString("dd/MM/yyyy HH:mm")</p>
-                                    <p>@(ac.NivelNome != null ? $"Nível: {ac.NivelNome}" : "")</p>
+                                    <p>Nível: @ac.NomeNivel</p>
                                 </div>
                             </div>
                         </div>
@@ -93,56 +94,50 @@
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            // Força checagem server-side de permissão para cada ação e atualiza UI
-            const actionEls = document.querySelectorAll('[data-acao]');
-            if (!actionEls || actionEls.length === 0) return;
+    document.addEventListener("DOMContentLoaded", () => {
+        const actions = document.querySelectorAll("[data-acao]");
+        if (actions.length === 0) return;
 
-            actionEls.forEach(el => {
-                const acao = el.dataset.acao;
+        actions.forEach(el => {
+            const acao = encodeURIComponent(el.dataset.acao);
 
-                // request server to check permission
-                fetch(`/Usuario/AcessarAcao?acao=${encodeURIComponent(acao)}`)
-                    .then(r => r.json())
-                    .then(json => {
-                        if (json && json.allowed) {
-                            // habilita visual
-                            el.classList.remove('bloqueado');
-                            el.querySelector('.semPermissao')?.setAttribute('hidden', '');
-                            const img = el.querySelector('.semPermissaoImg'); if (img) { img.style.visibility = 'hidden'; img.style.width = '0px'; }
-                            // mark allowed
-                            el.dataset.allowed = '1';
-                        } else {
-                            // bloqueia visual
-                            el.classList.add('bloqueado');
-                            el.querySelector('.semPermissao')?.removeAttribute('hidden');
-                            const img = el.querySelector('.semPermissaoImg'); if (img) { img.style.visibility = 'visible'; img.style.width = '24px'; }
-                            el.dataset.allowed = '0';
-                        }
-                    })
-                    .catch(err => {
-                        console.error('Erro ao verificar permissão para', acao, err);
-                        // em caso de erro, mantém bloqueado por segurança
-                        el.classList.add('bloqueado');
-                        el.dataset.allowed = '0';
-                    });
+            const atualizarUI = (allowed) => {
+                const sem = el.querySelector(".semPermissao");
+                const img = el.querySelector(".semPermissaoImg");
 
-                // click handler: always call server to perform final redirect/authorize
-                el.addEventListener('click', async (e) => {
-                    e.preventDefault();
-                    try {
-                        const res = await fetch(`/Usuario/AcessarAcao?acao=${encodeURIComponent(acao)}`);
-                        const json = await res.json();
-                        if (json && json.redirect) window.location.href = json.redirect;
-                        else alert('Sem permissão para essa ação.');
-                    } catch (err) {
-                        console.error('Erro ao solicitar ação', err);
-                        window.location.href = '/Login';
-                    }
-                });
+                el.classList.toggle("bloqueado", !allowed);
+                el.dataset.allowed = allowed ? "1" : "0";
+
+                if (sem) sem.hidden = allowed;
+                if (img) {
+                    img.style.visibility = allowed ? "hidden" : "visible";
+                    img.style.width = allowed ? "0px" : "24px";
+                }
+            };
+
+            // Checa permissão ao carregar
+            fetch(`/Usuario/AcessarAcao?acao=${acao}`)
+                .then(r => r.json())
+                .then(j => atualizarUI(j?.allowed))
+                .catch(() => atualizarUI(false)); // erro => bloquear
+
+            // Clique sempre valida no servidor
+            el.addEventListener("click", async e => {
+                e.preventDefault();
+                try {
+                    const res = await fetch(`/Usuario/AcessarAcao?acao=${acao}`);
+                    const j = await res.json();
+
+                    if (j?.redirect) window.location.href = j.redirect;
+                    else alert("Sem permissão para essa ação.");
+                } catch {
+                    window.location.href = "/Login";
+                }
             });
         });
+    });
     </script>
+
 
 
     @Html.Partial("_FooterSlim")

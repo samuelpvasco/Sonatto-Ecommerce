@@ -33,7 +33,7 @@ namespace Sonatto.Controllers
                     });
                 }
 
-                await _itemCarrinhoAplicacao.AdiconarItemCarrinho(idUsuario, idProduto, qtd);
+                await _itemCarrinhoAplicacao.AdicionarItemCarrinho(idUsuario, idProduto, qtd);
 
                 return Json(new
                 {

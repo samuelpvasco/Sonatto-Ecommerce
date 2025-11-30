@@ -47,34 +47,35 @@
     <div class="ultimasCompras">
         <div class="tituloBar">
             <h1>Suas últimas compras</h1>
-            <img src="~/imgs/icones/seta-cima.svg" alt="Toggle" style="cursor: pointer;">
+            <img src="~/imgs/icones/seta-cima.svg" alt="Toggle" class="toggleBtn" id="seta" style="cursor: pointer;" aria-expanded="false" />
         </div>
-
-        <div class="cardsDados">
-            @foreach (var venda in vendas)
-            {
-                var totalInvariant = venda.ValorTotal.ToString(System.Globalization.CultureInfo.InvariantCulture);
-                <div class="cardCompras" data-idvenda="@venda.IdVenda" data-total="@totalInvariant" style="cursor:pointer;">
-                    <img src="~/imgs/icones/Sacola.svg" />
-                    <div class="dadosCard">
-                        <div class="dados">
-                            <p class="dado">Data: @(venda.DataVenda is DateTime d ? d.ToString("dd/MM/yyyy") : "--/--/----")</p>
-                            <p class="dado">Pagamento: @venda.TipoPag</p>
-                            <p class="dado">Valor Total: R$ @venda.ValorTotal.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))</p>
+        <div class="cards" id="cards">
+            <div class="cardsDados">
+                @foreach (var venda in vendas)
+                {
+                    var totalInvariant = venda.ValorTotal.ToString(System.Globalization.CultureInfo.InvariantCulture);
+                    <div class="cardCompras" data-idvenda="@venda.IdVenda" data-total="@totalInvariant" style="cursor:pointer;">
+                        <img src="~/imgs/icones/Sacola.svg" />
+                        <div class="dadosCard">
+                            <div class="dados">
+                                <p class="dado">Data: @(venda.DataVenda is DateTime d ? d.ToString("dd/MM/yyyy") : "--/--/----")</p>
+                                <p class="dado">Pagamento: @venda.TipoPag</p>
+                                <p class="dado">Valor Total: R$ @venda.ValorTotal.ToString("N2", System.Globalization.CultureInfo.GetCultureInfo("pt-BR"))</p>
+                            </div>
+                            <p class="maisDetalhes">Clique para ver mais detalhes</p>
                         </div>
-                        <p class="maisDetalhes">Clique para ver mais detalhes</p>
                     </div>
-                </div>
-            }
-        </div>
+                }
+            </div>
 
-        <div class="dadosDaCompra">
-            <h1>Dados da compra</h1>
-            <div class="subCard">
-                <div class="grupo" id="itensCompraContainer">
-                    @* Os itens vai aparecer por conta do script *@
+            <div class="dadosDaCompra">
+                <h1>Dados da compra</h1>
+                <div class="subCard">
+                    <div class="grupo" id="itensCompraContainer">
+                        @* Os itens vão aparecer por conta do script *@
+                    </div>
+                    <h2 class="valor" id="valorTotalCompra">Valor total: R$ 0,00</h2>
                 </div>
-                <h2 class="valor" id="valorTotalCompra">Valor total: R$ 0,00</h2>
             </div>
         </div>
     </div>
@@ -83,11 +84,10 @@
     <div class="editarConta">
         <div class="tituloBar">
             <h1>Editar Conta</h1>
-            <img src="~/imgs/icones/seta-cima.svg" alt="Toggle" style="cursor: pointer;" class="toggle-img" />
+            <img src="~/imgs/icones/seta-cima.svg" alt="Toggle" style="cursor: pointer;" class="toggleBtn" id="seta2"/>
         </div>
 
-
-        <div class="conteudoEditar">
+        <div class="conteudoEditar" id="editar">
             <p>Seus dados</p>
                 <form asp-controller="Usuario" asp-action="Alterar" method="post" class="seusDadosCampo">
                     @Html.AntiForgeryToken()
@@ -110,17 +110,19 @@
                             <input name="CPF" type="text" maxlength="11" value="@(usuarioLogado?.CPF ?? "")" placeholder="CPF do usuario" />
                             <label>Telefone</label>
                             <input name="Telefone" type="tel" value="@(usuarioLogado?.Telefone ?? "")" placeholder="Telefone do usuario" />
+
+                            
                         </div>
 
                         <div class="coluna3">
                             <p>Modifique apenas as informações que deseja alterar!</p>
                         </div>
                     </div>
-
-                    <div class="botoes">
-                        <button type="button" class="btn-cancelar" id="btn-cancelar" onclick="location.reload()">Cancelar</button>
-                        <button type="submit" class="btn-alterar" id="btn-alterar">Alterar</button>
-                    </div>
+                <div class="botoes">
+                    <button type="button" class="btn-cancelar" id="btn-cancelar" onclick="location.reload()">Cancelar</button>
+                    <button type="submit" class="btn-alterar" id="btn-alterar">Alterar</button>
+                </div>
+                    
                 </form>
 
         </div>
@@ -165,86 +167,49 @@
         </div>
     </div>
 
-    @*Script do toggle dos dados das compras*@
+    @*Script dos toggles*@
     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const toggleImg = document.querySelector(".tituloBar img");
-            const cardsDados = document.querySelector(".cardsDados");
-            const dadosDaCompra = document.querySelector(".dadosDaCompra");
-            const ultimasCompras = document.querySelector(".ultimasCompras");
-
-            let isOpen = true  ;
-
-            toggleImg.addEventListener("click", function () {
-                if (isOpen) {
-                    cardsDados.style.maxHeight = "0";
-                    cardsDados.style.opacity = "0";
-                    cardsDados.style.padding = "0";
-                    cardsDados.style.margin = "0";
-
-                    dadosDaCompra.style.maxHeight = "0";
-                    dadosDaCompra.style.opacity = "0";
-                    dadosDaCompra.style.padding = "0";
-                    dadosDaCompra.style.margin = "0";
-
-                    dadosDaCompra.style.visibility = "hidden";
-
-                    toggleImg.style.transform = "rotate(180deg)";
-                } else {
-                    cardsDados.style.maxHeight = "700px"; 
-                    cardsDados.style.opacity = "1";
-                    cardsDados.style.padding = "16px 0";
-                    cardsDados.style.margin = "3% 0 0 6%";
-
-                    dadosDaCompra.style.maxHeight = "76.3%";
-                    dadosDaCompra.style.opacity = "1";
-                    dadosDaCompra.style.padding = "16px 0";
-                    dadosDaCompra.style.margin = "-37% 5% 0 0";
-                    dadosDaCompra.style.visibility = "visible";
-
-                    toggleImg.style.transform = "rotate(0deg)";
-                }
-
-                isOpen = !isOpen;
-            });
+        //setas
+        const seta = document.getElementById("seta");
+        const seta2 = document.getElementById("seta2")
+        //conteudos
+        const cards = document.getElementById("cards")
+        const editar = document.getElementById("editar")
+        var ativo = false;
+        var ativo2 = false;
+        
+        seta.addEventListener("click", () => {
+            if (!ativo) {
+                cards.style.maxHeight = "700px";
+                cards.style.opacity = "1";
+                cards.style.pointerEvents = "auto";
+                seta.classList.toggle("girar");
+                ativo = true;
+            } else {
+                cards.style.margin="0"
+                cards.style.maxHeight = "0";
+                cards.style.opacity = "0";
+                cards.style.pointerEvents = "none";
+                seta.classList.toggle("girar");
+                ativo = false;
+            }
         });
-    </script>
 
-    @*Script do toggle do editar conta*@
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const toggleImgEditar = document.querySelector(".editarConta .toggle-img");
-            const conteudoEditar = document.querySelector(".conteudoEditar");
-
-            // Começa FECHADO
-            let isOpenEditar = false;
-
-            // Força estado fechado ao carregar
-            conteudoEditar.style.maxHeight = "0";
-            conteudoEditar.style.opacity = "0";
-            conteudoEditar.style.padding = "0";
-            conteudoEditar.style.margin = "0";
-            toggleImgEditar.style.transform = "rotate(180deg)";
-
-            toggleImgEditar.addEventListener("click", function () {
-                if (isOpenEditar) {
-                    // FECHAR
-                    conteudoEditar.style.maxHeight = "0";
-                    conteudoEditar.style.opacity = "0";
-                    conteudoEditar.style.padding = "0";
-                    conteudoEditar.style.margin = "0";
-                    toggleImgEditar.style.transform = "rotate(180deg)";
-                } else {
-                    // ABRIR
-                    conteudoEditar.style.maxHeight = "1000px";  // ou ajuste conforme necessário
-                    conteudoEditar.style.opacity = "1";
-                    conteudoEditar.style.padding = "16px 0";
-                    conteudoEditar.style.margin = "3% 0 0 6%";
-                    toggleImgEditar.style.transform = "rotate(0deg)";
-                }
-
-                isOpenEditar = !isOpenEditar;
-            });
+        seta2.addEventListener("click", () => {
+            if (!ativo2) {
+                editar.style.maxHeight = "700px";
+                editar.style.opacity = "1";
+                editar.style.pointerEvents = "auto";
+                seta2.classList.toggle("girar");
+                ativo2 = true;
+            } else {
+                editar.style.margin="0"
+                editar.style.maxHeight = "0";
+                editar.style.opacity = "0";
+                editar.style.pointerEvents = "none";
+                seta2.classList.toggle("girar");
+                ativo2 = false;
+            }
         });
     </script>
 
@@ -273,62 +238,62 @@
     </script>
 
     <script>
-    // Dados serializados do servidor
-    const itensPorVenda = @Html.Raw(JsonSerializer.Serialize(itensPorVenda));
-    const produtos = @Html.Raw(JsonSerializer.Serialize(produtos));
+        // Dados serializados do servidor
+        const itensPorVenda = @Html.Raw(JsonSerializer.Serialize(itensPorVenda));
+        const produtos = @Html.Raw(JsonSerializer.Serialize(produtos));
 
-    const paraNumero = v => {
-        if (v == null) return 0;
-        if (typeof v === 'number') return isFinite(v) ? v : 0;
-        return Number(String(v).replace(',', '.')) || 0;
-    };
-    const formatarBRL = v => paraNumero(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const paraNumero = v => {
+            if (v == null) return 0;
+            if (typeof v === 'number') return isFinite(v) ? v : 0;
+            return Number(String(v).replace(',', '.')) || 0;
+        };
+        const formatarBRL = v => paraNumero(v).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
-    // Mapa rápido de produtos por id
-    const mapaProdutos = (() => {
-        const m = new Map();
-        if (!Array.isArray(produtos)) return m;
-        produtos.forEach(p => m.set(String(p?.IdProduto ?? p?.idProduto ?? p?.Id ?? p?.id), p));
-        return m;
-    })();
+        // Mapa rápido de produtos por id
+        const mapaProdutos = (() => {
+            const m = new Map();
+            if (!Array.isArray(produtos)) return m;
+            produtos.forEach(p => m.set(String(p?.IdProduto ?? p?.idProduto ?? p?.Id ?? p?.id), p));
+            return m;
+        })();
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const cartoes = document.querySelectorAll('.cardCompras');
-        const container = document.getElementById('itensCompraContainer');
-        const elementoTotal = document.getElementById('valorTotalCompra');
-        if (!cartoes || !container || !elementoTotal) return;
+        document.addEventListener('DOMContentLoaded', () => {
+            const cartoes = document.querySelectorAll('.cardCompras');
+            const container = document.getElementById('itensCompraContainer');
+            const elementoTotal = document.getElementById('valorTotalCompra');
+            if (!cartoes || !container || !elementoTotal) return;
 
-        cartoes.forEach(cartao => {
-            cartao.addEventListener('click', () => {
-                const idVenda = cartao.dataset.idvenda;
-                const itens = itensPorVenda?.[idVenda] ?? itensPorVenda?.[String(idVenda)] ?? [];
+            cartoes.forEach(cartao => {
+                cartao.addEventListener('click', () => {
+                    const idVenda = cartao.dataset.idvenda;
+                    const itens = itensPorVenda?.[idVenda] ?? itensPorVenda?.[String(idVenda)] ?? [];
 
-                // Monta HTML dos itens
-                container.innerHTML = itens.map(item => {
-                    const idProd = String(item?.IdProduto ?? item?.idProduto ?? item?.ProdutoId ?? item?.Id ?? item?.id ?? '');
-                    const produto = mapaProdutos.get(idProd);
-                    const nome = (produto?.NomeProduto ?? produto?.nomeProduto ?? item?.NomeProduto ?? item?.ProdutoNome ?? 'Produto').toString();
-                    const qtd = paraNumero(item?.Qtd ?? item?.Quantidade ?? item?.qtd);
-                    const subtotal = paraNumero(item?.SubTotal ?? item?.Subtotal ?? item?.subtotal ?? item?.PrecoUni ?? item?.Preco);
+                    // Monta HTML dos itens
+                    container.innerHTML = itens.map(item => {
+                        const idProd = String(item?.IdProduto ?? item?.idProduto ?? item?.ProdutoId ?? item?.Id ?? item?.id ?? '');
+                        const produto = mapaProdutos.get(idProd);
+                        const nome = (produto?.NomeProduto ?? produto?.nomeProduto ?? item?.NomeProduto ?? item?.ProdutoNome ?? 'Produto').toString();
+                        const qtd = paraNumero(item?.Qtd ?? item?.Quantidade ?? item?.qtd);
+                        const subtotal = paraNumero(item?.SubTotal ?? item?.Subtotal ?? item?.subtotal ?? item?.PrecoUni ?? item?.Preco);
 
-                    const nomeCurto = nome.length > 25 ? nome.slice(0, 25) + '...' : nome;
-                    return `
-                        <div class="itensDados">
-                            <div class="dadosItemProduto">
-                                <p class="nome">${nomeCurto}</p>
-                                <p class="quantidade">Quantidade: ${qtd}</p>
-                            </div>
-                            <p class="subtotal">Subtotal: R$ ${formatarBRL(subtotal)}</p>
-                        </div>`;
-                }).join('');
+                        const nomeCurto = nome.length > 25 ? nome.slice(0, 25) + '...' : nome;
+                        return `
+                            <div class="itensDados">
+                                <div class="dadosItemProduto">
+                                    <p class="nome">${nomeCurto}</p>
+                                    <p class="quantidade">Quantidade: ${qtd}</p>
+                                </div>
+                                <p class="subtotal">Subtotal: R$ ${formatarBRL(subtotal)}</p>
+                            </div>`;
+                    }).join('');
 
-                // Lê e mostra o total já calculado no servidor (data-total)
-                const total = paraNumero(cartao.dataset.total);
-                elementoTotal.textContent = `Valor total: R$ ${formatarBRL(total)}`;
+                    // Lê e mostra o total já calculado no servidor
+                    const total = paraNumero(cartao.dataset.total);
+                    elementoTotal.textContent = `Valor total: R$ ${formatarBRL(total)}`;
+                });
             });
         });
-    });
-</script>
+    </script>
 
     @Html.Partial("_FooterSlim")
 </body>
