@@ -1,5 +1,5 @@
 -- Tabelas do Ecommerce
-DROP DATABASE dbSonatto;
+-- DROP DATABASE dbSonatto;
 CREATE DATABASE dbSonatto;
 USE dbSonatto;
 
