@@ -186,10 +186,6 @@ BEGIN
 END $$
 DELIMITER ;
 
-
-select * from tbUsuario
-
-
 -- procedure adicionar nivel de acesso
 DELIMITER $$
 
@@ -212,7 +208,6 @@ END$$
 
 DELIMITER ;
 
-select * from tbusuario
 -- call sp_AdicionarNivel(1,1)
 -- Procedure Cadastrar Produto
 -- drop procedure sp_CadastrarProduto
@@ -247,12 +242,7 @@ BEGIN
 END $$
 DELIMITER ;
 
-SELECT a.IdHistorico, a.IdUsuario, a.Acao, a.IdNivel, a.DataAcao, n.NomeNivel
-FROM tbHistoricoAcao a
-LEFT JOIN tbNivelAcesso n ON a.IdNivel = n.IdNivel
-WHERE a.IdUsuario = 1;
 
-select * from tbproduto;
 DELIMITER $$
 CREATE PROCEDURE sp_AlterarProduto(
 	vIdProduto INT,
@@ -304,8 +294,6 @@ DELIMITER ;
 
 call sp_AlterarProduto(1,"teste", 11.99, 'teste', 'teste', 4.5, 'Cordas', 20, 1, 'alterar')
 
-SELECT * FROM TBHISTORICOACAO
-select * from tbproduto where idproduto = 1
 DELIMITER $$
 CREATE PROCEDURE sp_AdicionarImagens( 
 	vIdProduto INT,
@@ -338,7 +326,7 @@ BEGIN
     SELECT rows_affected AS Affected;
 END $$
 DELIMITER ;
-SELECT * FROM TBIMAGENS;
+
 call sp_RemoverImagemProduto(1,'https://http2.mlstatic.com/D_NQ_NP_2X_927664-MLB89452613385_082025-F.webp');
 
 DELIMITER $$
@@ -474,10 +462,6 @@ DELIMITER ;
 
 -- call sp_RemoverItemCarrinho(1,1);
 
-select * from tbcarrinho;
-SELECT * FROM TBITEMCARRINHO;
-
-
 DELIMITER $$
 
 CREATE PROCEDURE sp_GerarVenda(
@@ -555,8 +539,6 @@ END $$
 DELIMITER ;
 
 -- call sp_GerarVenda(1, 'Débito', 5);
-select * from tbVenda;
-select * from tbitemVenda;
 
 DELIMITER $$
 
@@ -849,6 +831,5 @@ CALL sp_AdicionarImagens(40,'https://madeinbrazil.fbitsstatic.net/img/p/ukulele-
 
 -- call sp_GerenciarNivel(2,"remover",3)
 
-select * from tbEstoque;
 
 SELECT * FROM vw_HistoricoAcao  WHERE IdUsuario = 1 ORDER BY DataAcao DESC;
