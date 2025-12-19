@@ -192,25 +192,26 @@ select * from tbUsuario
 
 -- procedure adicionar nivel de acesso
 DELIMITER $$
+
 CREATE PROCEDURE sp_GerenciarNivel(
-	vIdUsuario INT,
-    vAcao varchar(50),
-    vIdNivel INT
+    IN vIdUsuario INT,
+    IN vAcao VARCHAR(50),
+    IN vIdNivel INT
 )
 BEGIN
-	IF(vAcao = 'adicionar') THEN
-	INSERT INTO tbUsuNivel(IdUsuario, IdNivel)
-    VALUES(vIdUsuario, vIdNivel);
-    
-    ELSE IF (vAcao = 'remover') THEN
-    DELETE FROM tbUsuNivel WHERE IdUsuario = vIdUsuario AND IdNivel= vIdNivel;
+    IF (vAcao = 'adicionar') THEN
+        INSERT INTO tbUsuNivel (IdUsuario, IdNivel)
+        VALUES (vIdUsuario, vIdNivel);
+
+    ELSEIF (vAcao = 'remover') THEN
+        DELETE FROM tbUsuNivel
+        WHERE IdUsuario = vIdUsuario
+          AND IdNivel   = vIdNivel;
     END IF;
-    END IF;
-    
 END$$
 
-select * from tbproduto;
 DELIMITER ;
+
 select * from tbusuario
 -- call sp_AdicionarNivel(1,1)
 -- Procedure Cadastrar Produto
